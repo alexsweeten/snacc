@@ -2,15 +2,15 @@
 **BIO**logical implementation of the **N**ormalized **C**ompression **D**istance (name tentative to change). This repository was initated for the [hackseq18](https://www.hackseq.com) project titled "Alignment-free Pathogen Genomics", with development scheduled for October 12th - 14th, 2018.
 
 # Initial Description
-Sequence alignment has long been the de-facto method for determing similarity between two genomes. Algorithms which implement sequence alignment are abundant and widely used; the Basic Local Alignment Search Tool algorithm (BLAST) is one of the most frequently cited scientific papers. Recent advances in sequencing technology and bioinformatics toolkits have resulted in an explosive growth of genomic data available to analyze. 
+Sequence alignment has long been the de-facto method for determing similarity between two genomes. Algorithms which implement sequence alignment are abundant and widely used; the paper describing BLAST (Basic Local Alignment Search Tool algorithm) has over 70,000 citations, making it one of the most frequently cited tools in biology. However, in cases of low sequence homology, horizontal gene transfer, or lack of apriori information, as is common when dealing with pathogenic bacteria, alignment-based methods pose significant problems. New methods are required to analyze this data, and I hope to introduce the Normalized Compression Distance (NCD) as one such method.
 
-The normalized compression distance is a paramater-free distance metric which utilizes compression algorithms. These algorithms find and take advantage of redundancies in a given input signal in order to reduce the size required to encode that signal. Intuition says that the more similar two strings are, the better their concatenation will compress. NCD has been used in many different ways, such as [classifying musical genres of mp3 files](google.ca), [scanning Android files for viruses] and find from a given input set. A more mathematical description of NCD and the information theory behind it can be found in the wiki of this repo.
+NCD is a paramater-free metric which utilizes compression algorithms in order to estimate similarity. These algorithms find and take advantage of redundancies in a given input signal in order to reduce the size required to encode that signal. Intuition says that the more similar two strings are, the more redundancies they will have, which will result in a better compression score. NCD has been used in many different ways, such as [classifying musical genres of mp3 files](https://homepages.cwi.nl/~paulv/papers/music.pdf), [scanning Android files for viruses](https://link.springer.com/article/10.1007/s11416-015-0260-0) and [natural language processing](http://www.aclweb.org/anthology/P10-2015). However, there are currently no existing tools which apply NCD towards biological datasets.
 
 # Project Goals 
-Our goal is to develop BioNCD, a pipeline that implements the normalized compression distance specifically for biological data as input. takes sequences as input, and outputs a sequence similairity network with NCD used as a distance metric. This pipeline can be broken down into 3 stages:
+Our goal is to develop BioNCD, a pipeline that implements the normalized compression distance specifically for biological data as input. BioNCD will take sequences as input, and output a sequence similairity network with NCD used as the similarity metric. This pipeline can be broken down into 3 stages:
 
 1) Compression
-* Input: Set of sequences
+* Input: Set of sequences (fasta/fastq files)
 * Output: Distance matrix of NCD values
 
 2) Clustering
@@ -21,18 +21,16 @@ Our goal is to develop BioNCD, a pipeline that implements the normalized compres
 * Input: Table of cluster assignments & distance matrix of NCD values
 * Output: Sequence similarity network
 
-The compression stage of this pipeline is where we will focus the bulk of our development towards. Finally, we would like to package this pipeline into a conda package to make it easy for users to run this pipeline and not have any dependency issues. 
+I currently have a naive implementation of the compression stage, however it requires many optimizations. During development, we will benchmark each stage of the pipeline and compare the runtime and memory requirements to other similarity metrics. We will also apply our pipeline towards datasets of pathogenic bacteria & viruses. Finally, I would like to package this pipeline into a conda package to make it easy for users to run on their own machines.
 
-# Hackathon pre-requisities & structure
+# Hackathon pre-requisities
 
-I have initialized this repository with a number of issues for participants to work on. As work gets completed, I will add more issues as they become available.
+Python is the name of the game here. If you would like to participate in this project but don't feel comfortable working in Python, there are options to work more on the visualiztion side of this pipeline. Participants stronger in molecular biology can work with our bacterial & viral datasets, and organize our clustering in a way that shows our results are biologically meaningful. 
 
-For communication, we plan to use a Slack channel. 
-If you are uncomfortable, don't fret! We 
-Knowledge of compression algorithms/information theory is not required, but would be nice to know. 
+No background reading is required, however if you are interested I've included some links to lossless data compression algorithms, clustering methods, and other similairity tools which may prove useful.
 
 # Dependencies
-Dependencies are not finalized and will be updated here. Most likely we will require:
+Dependencies are not yet finalized, and will be updated here. Most likely we will require:
 - [`python3`](https://python.org)
 - [`numpy`](https://numpy.org)
 - [`scipy`](https://scipy.org)
