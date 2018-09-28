@@ -21,13 +21,7 @@ Our goal is to develop BioNCD, a pipeline that implements the normalized compres
 * Input: Table of cluster assignments & distance matrix of NCD values
 * Output: Sequence similarity network
 
-I currently have a naive implementation of the compression stage, however it requires many optimizations. During development, we will benchmark each stage of the pipeline and compare the runtime and memory requirements to other similarity metrics. We will also apply our pipeline towards datasets of pathogenic bacteria & viruses. Finally, I would like to package this pipeline into a conda package to make it easy for users to run on their own machines.
-
-# Hackathon pre-requisities
-
-Python is the name of the game here. If you would like to participate in this project but don't feel comfortable working in Python, there are options to work more on the visualiztion side of this pipeline. Participants stronger in molecular biology can work with our bacterial & viral datasets, and organize our clustering in a way that shows our results are biologically meaningful. 
-
-No background reading is required, however if you are interested I've included some links to lossless data compression algorithms, clustering methods, and other similairity tools which may prove useful.
+I currently have a naive implementation of the compression stage, however it requires many optimizations. During development, we will benchmark each stage of the pipeline and compare the runtime and memory requirements to other similarity metrics. We will also apply our pipeline towards datasets of pathogenic bacteria & viruses. Finally, I would like to manage this pipeline into a conda package to make it easy for users to run on their own machines.
 
 # Dependencies
 Dependencies are not yet finalized, and will be updated here. Most likely we will require:
