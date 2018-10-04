@@ -1,10 +1,27 @@
 import sys, lzma, getopt
 
+#given 2 sequence strings, returns sequences + concatenation as an object of bytes
+def return_byte(sequence1, sequence2):
+	seq1 = bytes(sequence1, 'utf-8')
+	seq2 = bytes(sequence2, 'utf-8')
+	seqconcat = concat(seq1, seq2)
+	return(seq1, seq2, seqconcat)
+
 #compresses input sequence using lempel-ziv markov algorithm
 def compress_lzma(sequence):
 	#lzma requires Python 3.
     lz = lzma.compress(sequence)
     return lz
+
+#input
+def compressed_size(sequences):
+	compressed_seq1 = compress_lzma(sequences[0])
+	compressed_seq1_size = sys.getsizeof(compressed_seq1)
+	compressed_seq2 = compress_lzma(sequences[1])
+	compressed_seq2_size = sys.getsizeof(compressed_seq2)
+	compressed_seqconcat = compress_lzma(sequences[2])
+	compressed_seqconcat_size = sys.getsizeof(compressed_seqconcat)
+	return(compressed_seq1_size, compressed_seq2_size, compressed_seqconcat_size)
 
 #calculates NCD for 2 sequence sizes and their concatenation size	
 def compute_distance(x,y,cxy):
@@ -64,26 +81,13 @@ def main(argv):
 		sys.exit(3)
 
 	#convert input sequences into bytes
-	seq1 = bytes(seq1, 'utf-8')
-	print(sys.getsizeof(seq1))
-	seq2 = bytes(seq2, 'utf-8')
-	print(sys.getsizeof(seq2))
-	seqconcat = concat(seq1, seq2)
-	print(sys.getsizeof(seqconcat))
-
+	sequences = return_byte(seq1, seq2)
+	
 	#compress input sequences
-	compressed_seq1 = compress_lzma(seq1)
-	compressed_seq1_size = sys.getsizeof(compressed_seq1)
-	print(compressed_seq1_size)
-	compressed_seq2 = compress_lzma(seq2)
-	compressed_seq2_size = sys.getsizeof(compressed_seq2)
-	print(compressed_seq2_size)
-	compressed_seqconcat = compress_lzma(seqconcat)
-	compressed_seqconcat_size = sys.getsizeof(compressed_seqconcat)
-	print(compressed_seqconcat_size)
+	sizes = compressed_size(sequences)
 
 	#compute ncd values
-	ncd = compute_distance(compressed_seq1_size, compressed_seq2_size, compressed_seqconcat_size)
+	ncd = compute_distance(sizes[0], sizes[1], sizes[2])
 	print(ncd)
 
 if __name__== "__main__":
