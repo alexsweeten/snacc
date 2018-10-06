@@ -1,4 +1,5 @@
 import sys, lzma, getopt
+from sklearn.cluster import AgglomerativeClustering
 
 #given 2 sequence strings, returns sequences + concatenation as an object of bytes
 def return_byte(sequence1, sequence2):
