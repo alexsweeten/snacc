@@ -23,3 +23,4 @@ def GenCompress(fasta):
     os.system(cmd)
     return open(out_name)
     
+
