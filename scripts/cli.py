@@ -8,19 +8,15 @@ from Bio import SeqIO
 from pairwise_ncd import return_byte, compressed_size, compute_distance
 
 
-  
-def extract_fa(direction, file_name):
+def extract_sequences(filepath, reverse_complement=False):
     seq = ""
-    seq_id = ""
-    if direction == 'rev':
-        for seq_record in SeqIO.parse(file_name, "fasta"): ##if user wants reversed 
-            seq_id = seq_id + " " + seq_record.id
-            seq = seq + str(seq_record.seq.reverse_complement()) ##reverse compliment and concat
-    else:
-        for seq_record in SeqIO.parse(file_name, "fasta"): # for every sequence in the fa file
-            seq_id = seq_id + " " + seq_record.id
-            seq = seq + str(seq_record.seq)
-    return (seq, seq_id) ##returning seq headers and seq
+    for seq_record in SeqIO.parse(file_name, "fasta"):
+        if reverse_complement:
+            seq += str(seq_record.seq.reverse_complement())
+        else:
+            seq += str(seq_record.seq)
+    return seq
+
   
 def tqdm_parallel_map(showProgress, executor, fn, *iterables, **kwargs):
     """
@@ -40,15 +36,13 @@ def tqdm_parallel_map(showProgress, executor, fn, *iterables, **kwargs):
         for f in concurrent.futures.as_completed(futures_list):
             yield f.result()
 
-
-def compute_parallel(comparison, algorithm, saveCompression):
+def compute_parallel(comparison, algorithm, saveCompression = "", reverse_complement=False):
     #Compute a distance between a and b
-    sequences = return_byte(open(comparison[0]).read(), open(comparison[1]).read())
-    sizes = compressed_size(sequences, algorithm, saveCompression,comparison)
+    sequences = return_byte(extract_sequences(comparison[0], reverse_complement=reverse_complement),
+                            extract_sequences(comparison[1], reverse_complement=reverse_complement))
+    sizes = compressed_size(sequences, algorithm, saveCompression, comparison)
     ncd = compute_distance(sizes[0], sizes[1], sizes[2])
-    return (comparison[0], comparison[1], ncd)
-
-
+    return comparison[0], comparison[1], ncd
 
 
 @click.command(context_settings=dict(help_option_names=['-h', '--help']))
@@ -61,22 +55,23 @@ def compute_parallel(comparison, algorithm, saveCompression):
 @click.option("-p", "--show-progress", "showProgress", default=True, type=bool, help="Show a progress bar for computing compression distances")
 def cli(fasta, directories, numThreads, compression, showProgress, saveCompression, output):
 
-	# generate a list of absolute paths containing the files to be compared
-	files = list(fasta)
+    # generate a list of absolute paths containing the files to be compared
+    files = list(fasta)
 
-	for directory in directories:
-		for dirpath, _, filenames in os.walk(directory):
-			for f in filenames:
-				files.append(os.path.abspath(os.path.join(dirpath, f)))
-	files = list(set(files)) # remove duplicates
-	comparisons = tqdm(list(product(files, repeat=2)))
+    for directory in directories:
+        for dirpath, _, filenames in os.walk(directory):
+            for f in filenames:
+                files.append(os.path.abspath(os.path.join(dirpath, f)))
+    files = list(set(files)) # remove duplicates
+    comparisons = tqdm(list(product(files, repeat=2)))
 
-  executor = concurrent.futures.ThreadPoolExecutor(max_workers=numThreads)
-  distances = tqdm_parallel_map(showProgress,executor, lambda x: compute_parallel(x, algorithm=compression, saveCompression=saveCompression), comparisons)
+    executor = concurrent.futures.ThreadPoolExecutor(max_workers=numThreads)
+    distances = tqdm_parallel_map(showProgress, executor, lambda x: compute_parallel(x, algorithm=compression, saveCompression=saveCompression, reverse_complement=reverse_complement), comparisons)
 
-	df = pd.DataFrame(distances, columns=["file", "file2", "ncd"])#.to_csv("out.csv", index=False)
 
-	df.pivot(index='file', columns='file2', values='ncd').to_csv(output)
+    df = pd.DataFrame(distances, columns=["file", "file2", "ncd"])#.to_csv("out.csv", index=False)
+
+    df.pivot(index='file', columns='file2', values='ncd').to_csv(output)
 
 if __name__ == "__main__":
-	cli()
+  cli()
