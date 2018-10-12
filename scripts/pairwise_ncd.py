@@ -46,6 +46,9 @@ def compress_bzip2(sequence):
 def compress_zlib(sequence):
 	return zlib.compress(sequence)
 
+def compress_lz4framed(sequence):
+	return lz4framed.compress(sequence)
+
 #input
 def compressed_size(sequences, algorithm):
 	if algorithm == "lzma":
@@ -64,6 +67,10 @@ def compressed_size(sequences, algorithm):
 		compressed_seq1 = compress_zlib(sequences[0])
 		compressed_seq2 = compress_zlib(sequences[1])
 		compressed_seqconcat = compress_zlib(sequences[2])
+	if algorithm == "lz4":
+		compressed_seq1 = compress_lz4framed(sequences[0])
+		compressed_seq2 = compress_lz4framed(sequences[1])
+		compressed_seqconcat = compress_lz4framed(sequences[2])
 	compressed_seq1_size = sys.getsizeof(compressed_seq1)
 	compressed_seq2_size = sys.getsizeof(compressed_seq2)
 	compressed_seqconcat_size = sys.getsizeof(compressed_seqconcat)
