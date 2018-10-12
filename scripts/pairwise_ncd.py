@@ -9,7 +9,7 @@ import argparse
 import os
 import bz2
 import gzip
-
+import lz4framed
 
 def bwt(s: str) -> str:
     """
