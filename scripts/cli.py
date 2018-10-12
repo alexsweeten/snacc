@@ -4,8 +4,23 @@ import concurrent.futures
 from itertools import product
 from tqdm import tqdm
 import pandas as pd
-
+from Bio import SeqIO
 from pairwise_ncd import return_byte, compressed_size, compute_distance
+
+
+def extract_fa(direction, file_name):
+    seq = ""
+    seq_id = ""
+    if direction == 'rev':
+        for seq_record in SeqIO.parse(file_name, "fasta"):
+            seq_id = seq_id + " " + seq_record.id
+            seq = seq + str(seq_record.seq.reverse_complement())
+    else:
+        for seq_record in SeqIO.parse(file_name, "fasta"):
+            seq_id = seq_id + " " + seq_record.id
+            seq = seq + str(seq_record.seq)
+    return (seq, seq_id)
+
 
 def tqdm_parallel_map(showProgress, executor, fn, *iterables, **kwargs):
 	"""
