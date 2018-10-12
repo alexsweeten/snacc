@@ -16,6 +16,10 @@ def compress_lzma(sequence):
     lz = lzma.compress(sequence)
     return lz
 
+
+def compress_gzip(sequence: bytes) -> bytes:
+    return gzip.compress(sequence)
+
 #input
 def compressed_size(sequences):
     compressed_seq1 = compress_lzma(sequences[0])
