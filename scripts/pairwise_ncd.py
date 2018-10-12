@@ -1,5 +1,18 @@
 import sys, lzma, getopt
 from sklearn.cluster import AgglomerativeClustering
+import sys
+import argparse
+import os
+
+
+def parse_arguments():
+	parser = argparse.ArgumentParser()
+	parser.add_argument('-x', '--seq_x', help="sequence 1", type=str, required=True)
+	parser.add_argument('-y', '--seq_y', help="sequence 2", type=str, required=True)
+	parser.add_argument('-c', '--compression', help="compression algorithm", type=str)
+	args = parser.parse_args()
+	return args
+
 
 #given 2 sequence strings, returns sequences + concatenation as an object of bytes
 def return_byte(sequence1, sequence2):
@@ -40,26 +53,11 @@ def concat(sequence1, sequence2):
 	return concat_genome
 
 
-def main(argv):
+def main(algorithm, seq_x, seq_y):
 	#parse command line arguments
-	inputfile1=''
-	inputfile2=''
-	outputfile=''
-
-	try:
-		opts, args = getopt.getopt(argv, "hx:y:",["ifile1=","ifile2="])
-	except getopt.GetoptError:
-		print('compress.py -x <inputfile1> -y <inputfile2>')
-		sys.exit(3)
-
-	for opt, arg in opts:
-		if opt == '-h':
-			print('compress.py -x <inputfile1> -y <inputfile2>')
-			sys.exit()
-		elif opt in ("-x", "--ifile1"):
-			inputfile1 = arg
-		elif opt in ("-y", "--ifile2"):
-			inputfile2 = arg
+	inputfile1 = seq_x
+	inputfile2 = seq_y
+	outputfile = ''
 
 	#error conditions: missing input and confliciting command line arguments
 	if inputfile1=='' or inputfile2=='':
@@ -92,4 +90,8 @@ def main(argv):
 	print(ncd)
 
 if __name__== "__main__":
-	main(sys.argv[1:])
+	args = parse_arguments()
+	algorithm = args.compression
+	seq_x = args.seq_x
+	seq_y = args.seq_y
+	main(algorithm, seq_x, seq_y)
