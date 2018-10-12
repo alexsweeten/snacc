@@ -61,9 +61,9 @@ def compressed_size(sequences, algorithm):
 		compressed_seq2 = compress_bzip2(sequences[1])
 		compressed_seqconcat = compress_bzip2(sequences[2])
 	if algorithm == "zlib":
-		compressed_seq1 = compress_bzip2(sequences[0])
-		compressed_seq2 = compress_bzip2(sequences[1])
-		compressed_seqconcat = compress_bzip2(sequences[2])
+		compressed_seq1 = compress_zlib(sequences[0])
+		compressed_seq2 = compress_zlib(sequences[1])
+		compressed_seqconcat = compress_zlib(sequences[2])
 	compressed_seq1_size = sys.getsizeof(compressed_seq1)
 	compressed_seq2_size = sys.getsizeof(compressed_seq2)
 	compressed_seqconcat_size = sys.getsizeof(compressed_seqconcat)
