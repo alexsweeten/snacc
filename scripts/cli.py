@@ -7,9 +7,9 @@ import pandas as pd
 
 from pairwise_ncd import return_byte, compressed_size, compute_distance
 
-def compute_distance(comparison, algorithm= "lzma"):
+def compute_distance(comparison, algorithm=compression):
     #Compute a distance between a and b
-    sequences = return_byte(open(comparison[0].read()), open(comparison[1].read()))
+    sequences = return_byte(open(comparison[0]).read(), open(comparison[1]).read())
     sizes = compressed_size(sequences, algorithm=algorithm)
     ncd = compute_distance(sizes[0], sizes[1], sizes[2])
     return (comparison[0], comparison[1], ncd)
@@ -21,7 +21,10 @@ def compute_distance(comparison, algorithm= "lzma"):
 
 @click.option("-N", "--numCPU", "numCPU",default= 1, help="Number of CPU cores available")
 @click.option("-o", "--output", type=click.Path(dir_okay=False, exists=False), help="The location for the output CSV file")
-def cli(fasta, directories,numCPU, output):
+@click.option("-c", "--compression", default="lzma", type=click.Choice(['lzma', 'gzip', 'bzip2', 'zlib', 'lz4']), help="The compression algorithm to use")
+
+def cli(fasta, directories,numCPU, compression, output):
+
 
 
     # generate a list of absolute paths containing the files to be compared
@@ -36,6 +39,7 @@ def cli(fasta, directories,numCPU, output):
 
     executor = concurrent.futures.ProcessPoolExecutor(max_workers=numCPU)
     distances = [res for res in executor.map(compute_distance,comparisons)]
+
 
     df = pd.DataFrame(distances, columns=["file", "file2", "ncd"])#.to_csv("out.csv", index=False)
 
