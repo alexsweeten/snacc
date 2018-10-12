@@ -30,9 +30,9 @@ def return_byte(sequence1: str, sequence2: str) -> tuple:
 
 def compressed_size(sequences: tuple, algorithm: str) -> tuple:
     if algorithm == "lzma":
-        compressed_seq1 = zma.compress(sequences[0])
-        compressed_seq2 = zma.compress(sequences[1])
-        compressed_seqconcat = zma.compress(sequences[2])
+        compressed_seq1 = lzma.compress(sequences[0])
+        compressed_seq2 = lzma.compress(sequences[1])
+        compressed_seqconcat = lzma.compress(sequences[2])
 
     elif algorithm == "gzip":
         compressed_seq1 = gzip.compress(sequences[0])
