@@ -37,7 +37,7 @@ To install virtualenv use the following command in your terminal:
 
     pip install virtualenv
 
-Then in the directory you want to use, create a virtualenv named mechwolf-env:
+Then in the directory you want to use, create a virtualenv named env:
 
     virtualenv -p python3.6 env
 
