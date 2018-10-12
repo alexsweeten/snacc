@@ -18,14 +18,10 @@ def compute_distance(comparison, algorithm=compression):
 @click.command(context_settings=dict(help_option_names=['-h', '--help']))
 @click.option("-f", "--fasta", type=click.Path(dir_okay=False, exists=True, resolve_path=True), multiple=True, help="FASTA file containing sequence to compare")
 @click.option("-d", "--directory", "directories", type=click.Path(dir_okay=True, file_okay=False, exists=True, resolve_path=True), multiple=True, help="Directory containing FASTA files to compare")
-
-@click.option("-N", "--numCPU", "numCPU",default= 1, help="Number of CPU cores available")
+@click.option("-n", "--num-cpu", "numCPU", type=int, default=1, help="Number of CPU cores to use")
 @click.option("-o", "--output", type=click.Path(dir_okay=False, exists=False), help="The location for the output CSV file")
 @click.option("-c", "--compression", default="lzma", type=click.Choice(['lzma', 'gzip', 'bzip2', 'zlib', 'lz4']), help="The compression algorithm to use")
-
-def cli(fasta, directories,numCPU, compression, output):
-
-
+def cli(fasta, directories, numCPU, compression, output):
 
     # generate a list of absolute paths containing the files to be compared
     files = list(fasta)
@@ -38,8 +34,7 @@ def cli(fasta, directories,numCPU, compression, output):
     comparisons = tqdm(list(product(files, repeat=2)))
 
     executor = concurrent.futures.ProcessPoolExecutor(max_workers=numCPU)
-    distances = [res for res in executor.map(compute_distance,comparisons)]
-
+    distances = [res for res in executor.map(compute_distance, comparisons)]
 
     df = pd.DataFrame(distances, columns=["file", "file2", "ncd"])#.to_csv("out.csv", index=False)
 
