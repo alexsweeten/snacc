@@ -31,6 +31,7 @@ Dependencies are not yet finalized, and will be updated here. Most likely we wil
 - [`pandas`](https://pandas.pydata.org)
 - [`matplotlib`](https://matplotlib.org)
 - [`sklearn`](http://scikit-learn.org/stable/)
+- [`py-lz4framed`](https://github.com/Iotic-Labs/py-lz4framed)
 
 ### Set up a virtual env (optional)
 To install virtualenv use the following command in your terminal:
