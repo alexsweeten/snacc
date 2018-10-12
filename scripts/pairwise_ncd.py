@@ -1,5 +1,7 @@
 import sys
 import lzma
+import bz2
+import zlib
 import getopt
 from sklearn.cluster import AgglomerativeClustering
 import sys
