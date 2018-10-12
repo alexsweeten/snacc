@@ -11,6 +11,7 @@ import os
 import bz2
 import gzip
 import snappy
+import lz4framed
 
 
 def parse_arguments():
