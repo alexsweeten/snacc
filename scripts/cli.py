@@ -9,7 +9,8 @@ from pairwise_ncd import return_byte, compressed_size, compute_distance
 @click.command(context_settings=dict(help_option_names=['-h', '--help']))
 @click.option("-f", "--fasta", type=click.Path(dir_okay=False, exists=True, resolve_path=True), multiple=True, help="FASTA file containing sequence to compare")
 @click.option("-d", "--directory", "directories", type=click.Path(dir_okay=True, file_okay=False, exists=True, resolve_path=True), multiple=True, help="Directory containing FASTA files to compare")
-def cli(fasta, directories):
+@click.option("-o", "--output", type=click.Path(dir_okay=False, exists=False), help="The location for the output CSV file")
+def cli(fasta, directories, output):
 
     # generate a list of absolute paths containing the files to be compared
     files = list(fasta)
@@ -34,7 +35,9 @@ def cli(fasta, directories):
 
         distances.append((comparison[0], comparison[1], ncd))
 
-    pd.DataFrame(distances, columns=["file1", "file2", "ncd"]).to_csv("out.csv", index=False)
+    df = pd.DataFrame(distances, columns=["file", "file2", "ncd"])#.to_csv("out.csv", index=False)
+
+    df.pivot(index='file', columns='file2', values='ncd').to_csv(output)
 
 
 if __name__ == "__main__":
