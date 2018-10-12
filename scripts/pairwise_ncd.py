@@ -39,51 +39,38 @@ def return_byte(sequence1, sequence2):
     seqconcat = concat(seq1, seq2)
     return(seq1, seq2, seqconcat)
 
-#compresses input sequence using lempel-ziv markov algorithm
-def compress_lzma(sequence):
-    #lzma requires Python 3.
-    lz = lzma.compress(sequence)
-    return lz
 
-
-def compress_gzip(sequence: bytes) -> bytes:
-    return gzip.compress(sequence)
-
-def compress_bzip2(sequence):
-    return bz2.compress(sequence)
-
-def compress_zlib(sequence):
-    return zlib.compress(sequence)
-
-def compress_lz4framed(sequence):
-    return lz4framed.compress(sequence)
-
-#input
-def compressed_size(sequences, algorithm):
+def compressed_size(sequences: tuple, algorithm: str) -> tuple:
     if algorithm == "lzma":
-        compressed_seq1 = compress_lzma(sequences[0])
-        compressed_seq2 = compress_lzma(sequences[1])
-        compressed_seqconcat = compress_lzma(sequences[2])
-    if algorithm == "gzip":
-        compressed_seq1 = compress_gzip(sequences[0])
-        compressed_seq2 = compress_gzip(sequences[1])
-        compressed_seqconcat = compress_gzip(sequences[2])
-    if algorithm == "bzip2":
-        compressed_seq1 = compress_bzip2(sequences[0])
-        compressed_seq2 = compress_bzip2(sequences[1])
-        compressed_seqconcat = compress_bzip2(sequences[2])
-    if algorithm == "zlib":
-        compressed_seq1 = compress_zlib(sequences[0])
-        compressed_seq2 = compress_zlib(sequences[1])
-        compressed_seqconcat = compress_zlib(sequences[2])
-    if algorithm == "lz4":
-        compressed_seq1 = compress_lz4framed(sequences[0])
-        compressed_seq2 = compress_lz4framed(sequences[1])
-        compressed_seqconcat = compress_lz4framed(sequences[2])
+        compressed_seq1 = zma.compress(sequences[0])
+        compressed_seq2 = zma.compress(sequences[1])
+        compressed_seqconcat = zma.compress(sequences[2])
+
+    elif algorithm == "gzip":
+        compressed_seq1 = gzip.compress(sequences[0])
+        compressed_seq2 = gzip.compress(sequences[1])
+        compressed_seqconcat = gzip.compress(sequences[2])
+
+    elif algorithm == "bzip2":
+        compressed_seq1 = bz2.compress(sequences[0])
+        compressed_seq2 = bz2.compress(sequences[1])
+        compressed_seqconcat = bz2.compress(sequences[2])
+
+    elif algorithm == "zlib":
+        compressed_seq1 = zlib.compress(sequences[0])
+        compressed_seq2 = zlib.compress(sequences[1])
+        compressed_seqconcat = zlib.compress(sequences[2])
+
+    elif algorithm == "lz4":
+        compressed_seq1 = lz4framed.compress(sequences[0])
+        compressed_seq2 = lz4framed.compress(sequences[1])
+        compressed_seqconcat = lz4framed.compress(sequences[2])
+
     compressed_seq1_size = sys.getsizeof(compressed_seq1)
     compressed_seq2_size = sys.getsizeof(compressed_seq2)
     compressed_seqconcat_size = sys.getsizeof(compressed_seqconcat)
-    return(compressed_seq1_size, compressed_seq2_size, compressed_seqconcat_size)
+
+    return compressed_seq1_size, compressed_seq2_size, compressed_seqconcat_size
 
 #calculates NCD for 2 sequence sizes and their concatenation size
 def compute_distance(x, y, cxy):
