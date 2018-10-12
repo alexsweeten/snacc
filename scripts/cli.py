@@ -7,7 +7,7 @@ from pairwise_ncd import return_byte, compressed_size, compute_distance
 def cli(fasta):
 
     #convert input sequences into bytes
-    sequences = return_byte(fasta[0], fasta[1])
+    sequences = return_byte(open(fasta[0]).read(), open(fasta[1]).read())
 
     #compress input sequences
     sizes = compressed_size(sequences)
