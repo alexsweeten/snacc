@@ -7,7 +7,7 @@ import pandas as pd
 
 from pairwise_ncd import return_byte, compressed_size, compute_distance
 
-def compute_distance(comparison, algorithm):
+def compute_parallel(comparison, algorithm):
     #Compute a distance between a and b
     sequences = return_byte(open(comparison[0]).read(), open(comparison[1]).read())
     sizes = compressed_size(sequences, algorithm)
@@ -34,7 +34,7 @@ def cli(fasta, directories, numThreads, compression, output):
     comparisons = tqdm(list(product(files, repeat=2)))
 
     executor = concurrent.futures.ThreadPoolExecutor(max_workers=numThreads)
-    distances = [res for res in executor.map(lambda x: compute_distance(x, algorithm=compression), comparisons)]
+    distances = [res for res in executor.map(lambda x: compute_parallel(x, algorithm=compression), comparisons)]
 
     df = pd.DataFrame(distances, columns=["file", "file2", "ncd"])#.to_csv("out.csv", index=False)
 
