@@ -20,7 +20,7 @@ def tqdm_parallel_map(showProgress, executor, fn, *iterables, **kwargs):
     for iterable in iterables:
         futures_list += [executor.submit(fn, i) for i in iterable]
     if showProgress:
-        print("Starting processes...")
+        print("Processes submitted, starting compression distance calculation...")
         for f in tqdm(concurrent.futures.as_completed(futures_list), total=len(futures_list), **kwargs):
             yield f.result()
     else:
