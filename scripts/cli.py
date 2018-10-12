@@ -53,7 +53,8 @@ def compute_parallel(comparison, algorithm, saveCompression = "", reverse_comple
 @click.option("-s", "--save-compression", "saveCompression", default="", type=str, help="Save compressed sequence files to the specified directory")
 @click.option("-c", "--compression", default="lzma", type=click.Choice(['lzma', 'gzip', 'bzip2', 'zlib', 'lz4', 'snappy']), help="The compression algorithm to use")
 @click.option("-p", "--show-progress", "showProgress", default=True, type=bool, help="Show a progress bar for computing compression distances")
-def cli(fasta, directories, numThreads, compression, showProgress, saveCompression, output):
+@click.option("-r", "--reverse_complement", is_flag=True, default=False, help="Whether to use the reverse complement of the sequence")
+def cli(fasta, directories, numThreads, compression, showProgress, saveCompression, output, reverse_complement):
 
     # generate a list of absolute paths containing the files to be compared
     files = list(fasta)
