@@ -18,7 +18,7 @@ def parse_arguments():
 	parser.add_argument('-y', '--seq_y', help="sequence 2", 
 		type=str, required=True)
 	parser.add_argument('-c', '--compression', help="compression algorithm", 
-		type=str,choices=['lzma', 'gzip', 'bzip2', 'zlib'], required=True)
+		type=str,choices=['lzma', 'gzip', 'bzip2', 'zlib', 'lz4'], required=True)
 	args = parser.parse_args()
 	return args
 
