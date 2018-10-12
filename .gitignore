@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+.vscode/*
+*~
+=======
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -109,3 +113,4 @@ venv.bak/
 .mypy_cache/
 .dmypy.json
 dmypy.json
+>>>>>>> 12bb213e90794371f8b6f4174ff748bca397fbe8
