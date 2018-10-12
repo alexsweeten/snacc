@@ -10,7 +10,7 @@ from pairwise_ncd import return_byte, compressed_size, compute_distance
 
 def extract_sequences(filepath, reverse_complement=False):
     seq = ""
-    for seq_record in SeqIO.parse(file_name, "fasta"):
+    for seq_record in SeqIO.parse(filepath, "fasta"):
         if reverse_complement:
             seq += str(seq_record.seq.reverse_complement())
         else:
