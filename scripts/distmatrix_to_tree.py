@@ -1,14 +1,11 @@
-import pandas as pd
 import numpy as np
 import scipy.spatial
 import scipy.cluster
 import matplotlib.pyplot as plt
 plt.switch_backend('agg')
 
-def read_dist(csv_file):
-  df = pd.read_csv(csv_file)
-  return df.as_matrix()
-  
+from misc import read_dist
+
 def metrify(D):
   # Converts a raw distance matrix to one which
   # is symmetric and has zero diagonals
@@ -34,5 +31,8 @@ def main(csv_file, plt_file):
   linkage = hierarchical(D_sym)
   plot_hierarchical(linkage, plt_file)
   
+def _test_dist2tree():
+  #main("../test_dataset/distance_matrix_mysteryGenome1-8.csv", "../test_dataset/distance_matrix_mysteryGenome1-8_tree.png")
+  main("../test_dataset/sample100.csv", "../test_dataset/sample100_tree.png")
 if __name__=="__main__":
-  main("../test_dataset/distance_matrix_mysteryGenome1-8.csv", "../test_dataset/distance_matrix_mysteryGenome1-8_tree.png")
+  _test_dist2tree()
