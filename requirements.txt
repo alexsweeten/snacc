@@ -4,3 +4,4 @@ pandas
 matplotlib
 scikit-learn
 click
+py-lz4framed
