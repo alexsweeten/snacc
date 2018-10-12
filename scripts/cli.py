@@ -12,14 +12,14 @@ def extract_fa(direction, file_name):
     seq = ""
     seq_id = ""
     if direction == 'rev':
-        for seq_record in SeqIO.parse(file_name, "fasta"):
+        for seq_record in SeqIO.parse(file_name, "fasta"): ##if user wants reversed 
             seq_id = seq_id + " " + seq_record.id
-            seq = seq + str(seq_record.seq.reverse_complement())
+            seq = seq + str(seq_record.seq.reverse_complement()) ##reverse compliment and concat
     else:
-        for seq_record in SeqIO.parse(file_name, "fasta"):
+        for seq_record in SeqIO.parse(file_name, "fasta"): # for every sequence in the fa file
             seq_id = seq_id + " " + seq_record.id
             seq = seq + str(seq_record.seq)
-    return (seq, seq_id)
+    return (seq, seq_id) ##returning seq headers and seq
 
 
 def tqdm_parallel_map(showProgress, executor, fn, *iterables, **kwargs):
