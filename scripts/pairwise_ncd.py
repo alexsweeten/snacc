@@ -18,7 +18,7 @@ def parse_arguments():
 	parser.add_argument('-y', '--seq_y', help="sequence 2", 
 		type=str, required=True)
 	parser.add_argument('-c', '--compression', help="compression algorithm", 
-		type=str,choices=['lzma', 'gzip', 'bzip2'], required=True)
+		type=str,choices=['lzma', 'gzip', 'bzip2', 'zlib'], required=True)
 	args = parser.parse_args()
 	return args
 
@@ -43,6 +43,9 @@ def compress_gzip(sequence: bytes) -> bytes:
 def compress_bzip2(sequence):
 	return bz2.compress(sequence)
 
+def compress_zlib(sequence):
+	return zlib.compress(sequence)
+
 #input
 def compressed_size(sequences, algorithm):
 	if algorithm == "lzma":
@@ -57,6 +60,10 @@ def compressed_size(sequences, algorithm):
 		compressed_seq1 = compress_bzip2(sequences[0])
 		compressed_seq2 = compress_bzip2(sequences[1])
 		compressed_seqconcat = compress_bzip2(sequences[2])
+	if algorithm == "zlib":
+		compressed_seq1 = compress_zlib(sequences[0])
+		compressed_seq2 = compress_zlib(sequences[1])
+		compressed_seqconcat = compress_zlib(sequences[2])
 	compressed_seq1_size = sys.getsizeof(compressed_seq1)
 	compressed_seq2_size = sys.getsizeof(compressed_seq2)
 	compressed_seqconcat_size = sys.getsizeof(compressed_seqconcat)
