@@ -22,6 +22,15 @@ def parse_arguments():
 	args = parser.parse_args()
 	return args
 
+def bwt(string):
+	"""
+	Code for Burrows-Wheeler Transformation. The code is adapted from Rosetta Code.
+	"""
+	s = "\002" + s + "\003"  
+    table = sorted(s[i:] + s[:i] for i in range(len(s)))  
+    last_column = [row[-1:] for row in table]
+    return "".join(last_column) 
+	
 
 #given 2 sequence strings, returns sequences + concatenation as an object of bytes
 def return_byte(sequence1, sequence2):
