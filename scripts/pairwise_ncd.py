@@ -1,5 +1,7 @@
 import sys
 import lzma
+import bz2
+import zlib
 import getopt
 from sklearn.cluster import AgglomerativeClustering
 
@@ -19,6 +21,12 @@ def compress_lzma(sequence):
 
 def compress_gzip(sequence: bytes) -> bytes:
     return gzip.compress(sequence)
+
+def compress_bz2(sequence: bytes) -> bytes:
+    return bz2.compress(sequence)
+
+def compress_zlib(sequence: bytes) -> bytes:
+    return bz2.compress(sequence)
 
 #input
 def compressed_size(sequences):
