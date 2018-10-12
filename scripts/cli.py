@@ -1,12 +1,21 @@
 import click
-from Bio.SeqIO import parse
-from pprint import pprint
+
+from pairwise_ncd import return_byte, compressed_size, compute_distance
 
 @click.command(context_settings=dict(help_option_names=['-h', '--help']))
-@click.argument("FASTA", type=click.Path(dir_okay=False, exists=True, resolve_path=True), nargs=-1)
+@click.argument("FASTA", type=click.Path(dir_okay=False, exists=True, resolve_path=True), nargs=2)
 def cli(fasta):
-    # for now, just print the name of the files we got
-    pprint(fasta)
+
+    #convert input sequences into bytes
+    sequences = return_byte(fasta[0], fasta[1])
+
+    #compress input sequences
+    sizes = compressed_size(sequences)
+
+    #compute ncd values
+    ncd = compute_distance(sizes[0], sizes[1], sizes[2])
+
+    print(ncd)
 
 
 if __name__ == "__main__":
