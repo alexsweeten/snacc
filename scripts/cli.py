@@ -20,17 +20,18 @@ def tqdm_parallel_map(showProgress, executor, fn, *iterables, **kwargs):
     for iterable in iterables:
         futures_list += [executor.submit(fn, i) for i in iterable]
     if showProgress:
+        print("Starting processes...")
         for f in tqdm(concurrent.futures.as_completed(futures_list), total=len(futures_list), **kwargs):
             yield f.result()
     else:
-        for f in tqdm(concurrent.futures.as_completed(futures_list), total=len(futures_list), **kwargs):
+        for f in concurrent.futures.as_completed(futures_list):
             yield f.result()
 
-            
-def compute_parallel(comparison, algorithm):
+
+def compute_parallel(comparison, algorithm, saveCompression):
     #Compute a distance between a and b
     sequences = return_byte(open(comparison[0]).read(), open(comparison[1]).read())
-    sizes = compressed_size(sequences, algorithm)
+    sizes = compressed_size(sequences, algorithm, saveCompression,comparison)
     ncd = compute_distance(sizes[0], sizes[1], sizes[2])
     return (comparison[0], comparison[1], ncd)
 
@@ -41,6 +42,7 @@ def compute_parallel(comparison, algorithm):
 @click.option("-n", "--num-threads", "numThreads", type=int, default=None, help="Number of Threads to use (default 5 * number of cores)")
 @click.option("-o", "--output", type=click.Path(dir_okay=False, exists=False), help="The location for the output CSV file")
 @click.option("-c", "--compression", default="lzma", type=click.Choice(['lzma', 'gzip', 'bzip2', 'zlib', 'lz4']), help="The compression algorithm to use")
+@click.option("-s", "--save-compression", "saveCompression", default="", type=str, help="Save compressed sequence files to the specified directory")
 @click.option("-p", "--show-progress", "showProgress", default=True, type=bool, help="Show a progress bar for computing compression distances")
 def cli(fasta, directories, numThreads, compression, showProgress, output):
 
@@ -55,12 +57,12 @@ def cli(fasta, directories, numThreads, compression, showProgress, output):
     comparisons = tqdm(list(product(files, repeat=2)))
 
     executor = concurrent.futures.ThreadPoolExecutor(max_workers=numThreads)
-    distances = tqdm_parallel_map(showProgress,executor, lambda x: compute_parallel(x, algorithm=compression), comparisons)
+    distances = tqdm_parallel_map(showProgress,executor, lambda x: compute_parallel(x, algorithm=compression, saveCompression=saveCompression), comparisons)
 
     df = pd.DataFrame(distances, columns=["file", "file2", "ncd"])#.to_csv("out.csv", index=False)
 
     df.pivot(index='file', columns='file2', values='ncd').to_csv(output)
 
-
 if __name__ == "__main__":
+
     cli()

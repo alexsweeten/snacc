@@ -28,7 +28,14 @@ def return_byte(sequence1: str, sequence2: str) -> tuple:
     return seq1, seq2, seq1 + seq2
 
 
-def compressed_size(sequences: tuple, algorithm: str) -> tuple:
+def compressed_size(sequences: tuple, algorithm: str, saveCompression: str, comparison: tuple) -> tuple:
+	extension = {
+		"lzma": ".lzma",
+		"gzip": ".gz",
+		"bzip2": ".bz2",
+		"zlib": ".ZLIB",
+		"lz4": ".lz4"
+	}
     if algorithm == "lzma":
         compressed_seq1 = lzma.compress(sequences[0])
         compressed_seq2 = lzma.compress(sequences[1])
@@ -54,6 +61,16 @@ def compressed_size(sequences: tuple, algorithm: str) -> tuple:
         compressed_seq2 = lz4framed.compress(sequences[1])
         compressed_seqconcat = lz4framed.compress(sequences[2])
 
+	if saveCompression == "":
+		f = open(comparison[0] + extension[algorithm])
+		f.write(compressed_seq1)
+		f.close()
+		f = open(comparison[0] + extension[algorithm])
+		f.write(compressed_seq2)
+		f.close()
+		f.open(comparison[2] + extension[algorithm])
+		f.write(compressed_seqconcat)
+		
     compressed_seq1_size = sys.getsizeof(compressed_seq1)
     compressed_seq2_size = sys.getsizeof(compressed_seq2)
     compressed_seqconcat_size = sys.getsizeof(compressed_seqconcat)
