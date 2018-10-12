@@ -30,7 +30,7 @@ def return_byte(sequence1, sequence2):
     seq2 = bytes(sequence2, 'utf-8')
     return seq1, seq2, seq1 + seq2
 def compressed_size(sequences, algorithm, saveCompression, comparison):
-  extension = {
+    extension = {
     "lzma": ".lzma",
     "gzip": ".gz",
     "bzip2": ".bz2",
