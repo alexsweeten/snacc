@@ -44,23 +44,33 @@ def compress_bzip2(sequence):
 	return bz2.compress(sequence)
 
 #input
-def compressed_size(sequences, algorithm):
-	if algorithm == "lzma":
-		compressed_seq1 = compress_lzma(sequences[0])
-		compressed_seq2 = compress_lzma(sequences[1])
-		compressed_seqconcat = compress_lzma(sequences[2])
-	if algorithm == "gzip":
-		compressed_seq1 = compress_gzip(sequences[0])
-		compressed_seq2 = compress_gzip(sequences[1])
-		compressed_seqconcat = compress_gzip(sequences[2])
-	if algorithm == "bzip2":
-		compressed_seq1 = compress_bzip2(sequences[0])
-		compressed_seq2 = compress_bzip2(sequences[1])
-		compressed_seqconcat = compress_bzip2(sequences[2])
-	compressed_seq1_size = sys.getsizeof(compressed_seq1)
-	compressed_seq2_size = sys.getsizeof(compressed_seq2)
-	compressed_seqconcat_size = sys.getsizeof(compressed_seqconcat)
-	return(compressed_seq1_size, compressed_seq2_size, compressed_seqconcat_size)
+
+def compressed_size(sequences, compressor='lzma'):
+    if compressor == 'lzma':
+        compressed_seq1 = compress_lzma(sequences[0])
+        compressed_seq2 = compress_lzma(sequences[1])
+        compressed_seqconcat = compress_lzma(sequences[2])
+    
+    if compressor == 'gzip':
+        compressed_seq1 = compress_gzip(sequences[0])
+        compressed_seq2 = compress_gzip(sequences[1])
+        compressed_seqconcat = compress_gzip(sequences[2])
+        
+    if compressor == 'bz2':
+        compressed_seq1 = compress_bz2(sequences[0])
+        compressed_seq2 = compress_bz2(sequences[1])
+        compressed_seqconcat = compress_bz2(sequences[2])
+        
+    if compressor == 'zlib':
+        compressed_seq1 = compress_zlib(sequences[0])
+        compressed_seq2 = compress_zlib(sequences[1])
+        compressed_seqconcat = compress_zlib(sequences[2])
+        
+    compressed_seq1_size = sys.getsizeof(compressed_seq1)
+    compressed_seq2_size = sys.getsizeof(compressed_seq2)
+    compressed_seqconcat_size = sys.getsizeof(compressed_seqconcat)
+    return(compressed_seq1_size, compressed_seq2_size, compressed_seqconcat_size)
+
 
 #calculates NCD for 2 sequence sizes and their concatenation size
 def compute_distance(x, y, cxy):
