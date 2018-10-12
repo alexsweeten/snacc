@@ -18,8 +18,11 @@ def compute_distance(comparison, algorithm= "lzma"):
 @click.command(context_settings=dict(help_option_names=['-h', '--help']))
 @click.option("-f", "--fasta", type=click.Path(dir_okay=False, exists=True, resolve_path=True), multiple=True, help="FASTA file containing sequence to compare")
 @click.option("-d", "--directory", "directories", type=click.Path(dir_okay=True, file_okay=False, exists=True, resolve_path=True), multiple=True, help="Directory containing FASTA files to compare")
+
 @click.option("-N", "--numCPU", "numCPU",default= 1, help="Number of CPU cores available")
-def cli(fasta, directories, numCPU):
+@click.option("-o", "--output", type=click.Path(dir_okay=False, exists=False), help="The location for the output CSV file")
+def cli(fasta, directories,numCPU, output):
+
 
     # generate a list of absolute paths containing the files to be compared
     files = list(fasta)
@@ -34,19 +37,9 @@ def cli(fasta, directories, numCPU):
     executor = concurrent.futures.ProcessPoolExecutor(max_workers=numCPU)
     distances = [res for res in executor.map(compute_distance,comparisons)]
 
-    # for comparison in tqdm(list(product(files, repeat=2))):
-    #     #convert input sequences into bytes
-    #     sequences = return_byte(open(comparison[0]).read(), open(comparison[1]).read())
-    #
-    #     #compress input sequences
-    #     sizes = compressed_size(sequences, algorithm="bzip2")
-    #
-    #     #compute ncd values
-    #     ncd = compute_distance(sizes[0], sizes[1], sizes[2])
-    #
-    #     distances.append((comparison[0], comparison[1], ncd))
+    df = pd.DataFrame(distances, columns=["file", "file2", "ncd"])#.to_csv("out.csv", index=False)
 
-    pd.DataFrame(distances, columns=["file1", "file2", "ncd"]).to_csv("out.csv", index=False)
+    df.pivot(index='file', columns='file2', values='ncd').to_csv(output)
 
 
 if __name__ == "__main__":
