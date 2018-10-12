@@ -10,7 +10,8 @@ from pairwise_ncd import return_byte, compressed_size, compute_distance
 @click.option("-f", "--fasta", type=click.Path(dir_okay=False, exists=True, resolve_path=True), multiple=True, help="FASTA file containing sequence to compare")
 @click.option("-d", "--directory", "directories", type=click.Path(dir_okay=True, file_okay=False, exists=True, resolve_path=True), multiple=True, help="Directory containing FASTA files to compare")
 @click.option("-o", "--output", type=click.Path(dir_okay=False, exists=False), help="The location for the output CSV file")
-def cli(fasta, directories, output):
+@click.option("-c", "--compression", default="lzma", type=click.Choice(['lzma', 'gzip', 'bzip2', 'zlib', 'lz4']), help="The the ")
+def cli(fasta, directories, output, compression):
 
     # generate a list of absolute paths containing the files to be compared
     files = list(fasta)
@@ -28,7 +29,7 @@ def cli(fasta, directories, output):
         sequences = return_byte(open(comparison[0]).read(), open(comparison[1]).read())
 
         #compress input sequences
-        sizes = compressed_size(sequences, algorithm="bzip2")
+        sizes = compressed_size(sequences, algorithm=compression)
 
         #compute ncd values
         ncd = compute_distance(sizes[0], sizes[1], sizes[2])
