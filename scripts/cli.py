@@ -21,8 +21,8 @@ def extract_sequences(filepath, reverse_complement=False):
 def tqdm_parallel_map(showProgress, executor, fn, *iterables, **kwargs):
     """
     Equivalent to executor.map(fn, *iterables),
-  	but displays a tqdm-based progress bar.
-  	Does not support timeout or chunksize as executor.submit is used internally
+        but displays a tqdm-based progress bar.
+        Does not support timeout or chunksize as executor.submit is used internally
     **kwargs is passed to tqdm.
     """
     futures_list = []
@@ -49,10 +49,10 @@ def compute_parallel(comparison, algorithm, saveCompression = "", reverse_comple
 @click.option("-f", "--fasta", type=click.Path(dir_okay=False, exists=True, resolve_path=True), multiple=True, help="FASTA file containing sequence to compare")
 @click.option("-d", "--directory", "directories", type=click.Path(dir_okay=True, file_okay=False, exists=True, resolve_path=True), multiple=True, help="Directory containing FASTA files to compare")
 @click.option("-n", "--num-threads", "numThreads", type=int, default=None, help="Number of Threads to use (default 5 * number of cores)")
-@click.option("-o", "--output", type=click.Path(dir_okay=False, exists=False), help="The location for the output CSV file")
-@click.option("-s", "--save-compression", "saveCompression", default="", type=str, help="Save compressed sequence files to the specified directory")
+@click.option("-o", "--output", required=True, type=click.Path(dir_okay=False, exists=False), help="The location for the output CSV file")
+@click.option("-s", "--save-compression", "saveCompression", type=click.Path(dir_okay=True, file_okay=False, resolve_path=True), help="Save compressed sequence files to the specified directory")
 @click.option("-c", "--compression", default="lzma", type=click.Choice(['bwt-disk','lzma', 'gzip', 'bzip2', 'zlib', 'lz4', 'snappy']), help="The compression algorithm to use")
-@click.option("-p", "--show-progress", "showProgress", default=True, type=bool, help="Show a progress bar for computing compression distances")
+@click.option("-p", "--show-progress", "showProgress", default=True, type=bool, help="Whether to show a progress bar for computing compression distances")
 @click.option("-r", "--reverse_complement", is_flag=True, default=False, help="Whether to use the reverse complement of the sequence")
 @click.option("-bO", "--bwte-out", "bwteOut", type=str, help="BWT-Disk: BWT of input FASTA file")
 @click.option("-bM", "--bwte-mem", "bwteMem", type=int, help="BWT-Disk: internal memory to be used in bwt-disk in MB (def. 256 MB)")
@@ -85,10 +85,10 @@ def cli(fasta, directories, numThreads, compression, showProgress, saveCompressi
     executor = concurrent.futures.ThreadPoolExecutor(max_workers=numThreads)
     distances = tqdm_parallel_map(showProgress, executor, lambda x: compute_parallel(x, algorithm=compression, saveCompression=saveCompression, reverse_complement=reverse_complement, bwtDiskDict=bwtDict), comparisons)
 
-
     df = pd.DataFrame(distances, columns=["file", "file2", "ncd"])#.to_csv("out.csv", index=False)
 
     df.pivot(index='file', columns='file2', values='ncd').to_csv(output)
 
+
 if __name__ == "__main__":
-  cli()
+    cli()

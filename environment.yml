@@ -1,0 +1,14 @@
+name: bioncd-env
+
+dependencies:
+- python=3.6
+- numpy
+- scipy
+- pandas
+- matplotlib
+- scikit-learn
+- click
+- py-lz4framed
+- tqdm
+- biopython
+- snappy
