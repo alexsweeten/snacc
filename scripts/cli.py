@@ -27,7 +27,7 @@ def cli(fasta, directories, numThreads, compression, showProgress, saveCompressi
             for f in filenames:
                 f = Path(os.path.join(dirpath, f))
                 if f.suffix.lower() in [".fasta", ".fna", ".fa", ".faa"]:
-                    files.append()
+                    files.append(f)
     files = list(set(files)) # remove any duplicates
     sequences = []
     executor = concurrent.futures.ThreadPoolExecutor(max_workers=numThreads)
