@@ -1,19 +1,25 @@
 from sklearn import manifold
+from sklearn import random_projection
 from sklearn.decomposition import PCA
+import umap
 import matplotlib.pyplot as plt
 plt.switch_backend('agg')
 from misc import read_dist
   
 def reduce_dimension(D, projection='mds'):
   projections = {'mds' : manifold.MDS(2, dissimilarity="precomputed"),
-                     'tsne' : manifold.TSNE(2, metric="precomputed")
+                 'tsne' : manifold.TSNE(2, metric="precomputed"),
+                 'gaussianrp': random_projection.GaussianRandomProjection(2),
+                 'spectralembedding': manifold.SpectralEmbedding(2),
+                 'pca': PCA(2),
+                 'umap': umap.UMAP(n_components=2, metric='precomputed')
   }
   
   X = projections[projection].fit_transform(D)
   return X
   
 def test_plot(csv_file, plt_file):
-  projections = ['mds', 'tsne']
+  projections = ['mds', 'tsne', 'gaussianrp', 'spectralembedding', 'pca', 'umap']
   N = len(projections)
   D = read_dist(csv_file)
   fig, ax = plt.subplots(N,1, figsize=(6,N*3))

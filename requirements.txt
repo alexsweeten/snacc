@@ -8,3 +8,4 @@ py-lz4framed
 tqdm
 biopython
 snappy
+umap-learn
