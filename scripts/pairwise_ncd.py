@@ -29,19 +29,33 @@ def return_byte(sequence1, sequence2):
     seq2 = bytes(sequence2, 'utf-8')
     return seq1, seq2, seq1 + seq2
 
-def compressed_size(sequence, algorithm, filename=None, save_directory=None):
+def extract_sequences(filepath, reverse_complement=False):
+	if type(filepath) == tuple:
+		return extract_sequences(filepath[0]) + extract_sequences(filepath[1])
+    seq = ""
+    for seq_record in SeqIO.parse(filepath.absolute(), "fasta"):
+        if reverse_complement:
+            seq += str(seq_record.seq.reverse_complement())
+        else:
+            seq += str(seq_record.seq)
+    return seq
+
+
+def compressed_size(filename, algorithm, reverse_complement=False, save_directory=None):
     '''
 
     Args:
-        sequence (str)
+        filename (pathlib.Path)
         algorithm (str)
-        filename (pathlib.Path, optional)
+		reverse_complement(bool, optional)
         save_directory (pathlib.Path, optional)
 
     Returns
-        int: the number of bytes in the compressed file
+        (pathlib.Path,int): the number of bytes in the compressed file
     '''
-    # check if already compressed
+
+    # check if already compressed @TODO
+	sequence = extract_sequences(filename, reverse_complement=reverse_complement)
     extension = {
         "lzma": ".lzma",
         "gzip": ".gz",
@@ -62,12 +76,11 @@ def compressed_size(sequence, algorithm, filename=None, save_directory=None):
     elif algorithm == 'snappy':
         compressed_seq = snappy.compress(sequence)
 
-    if save:
+    if save_directory:
         with open(os.path.join(save_directory.absolute(), filename.name + extension[algorithm]), 'wb') as f:
             f.write(compressed_seq)
 
-    return sys.getsizeof(compressed_seq)
-
+    return (filename,sys.getsizeof(compressed_seq))
 #calculates NCD for 2 sequence sizes and their concatenation size
 def compute_distance(x, y, cxy, cyx):
     if x > y:

@@ -1,7 +1,7 @@
 import click
 import os
 import concurrent.futures
-from itertools import product
+from itertools import product,permutations
 from tqdm import tqdm
 import pandas as pd
 from Bio import SeqIO
@@ -14,7 +14,7 @@ from pathlib import Path
 @click.option("-d", "--directory", "directories", type=click.Path(dir_okay=True, file_okay=False, exists=True, resolve_path=True), multiple=True, help="Directory containing FASTA files to compare")
 @click.option("-n", "--num-threads", "numThreads", type=int, default=None, help="Number of Threads to use (default 5 * number of cores)")
 @click.option("-o", "--output", type=click.Path(dir_okay=False, exists=False), help="The location for the output CSV file")
-@click.option("-s", "--save-compression", "saveCompression", type=click.Path(dir_okay=True, file_okay=False, resolve_path=True), help="Save compressed sequence files to the specified directory")
+@click.option("-s", "--save-compression", "saveCompression", type=click.Path(dir_okay=True, file_okay=False, resolve_path=True), default = None, help="Save compressed sequence files to the specified directory")
 @click.option("-c", "--compression", default="lzma", type=click.Choice(['lzma', 'gzip', 'bzip2', 'zlib', 'lz4', 'snappy']), help="The compression algorithm to use")
 @click.option("-p", "--show-progress", "showProgress", default=True, type=bool, help="Whether to show a progress bar for computing compression distances")
 @click.option("-r", "--reverse_complement", is_flag=True, default=False, help="Whether to use the reverse complement of the sequence")
@@ -30,12 +30,37 @@ def cli(fasta, directories, numThreads, compression, showProgress, saveCompressi
                 if f.suffix.lower() in [".fasta", ".fna", ".fa", ".faa"]:
                     files.append()
     files = list(set(files)) # remove any duplicates
-
+    sequences = []
     executor = concurrent.futures.ThreadPoolExecutor(max_workers=numThreads)
-    compressed_sizes = tqdm_parallel_map(executor, lambda x: compress_parallel(x,
+
+    #compute compressed sizes of individual sequences
+    print("Compressing individual files...")
+    compressed_sizes = tqdm_parallel_map(executor, lambda x: compressed_size(filename=x,
                                                                                algorithm=compression,
-                                                                               saveCompression=saveCompression,
-                                                                               reverse_complement=reverse_complement))
+                                                                               save_directory=saveCompression,
+                                                                               ), files)
+    compress_dict = dict(compressed_files) # {PATH: compressed size}
+
+    # compute compressed sizes of all ordered pairs of sequences
+    print("Compressing pairs...")
+    compressed_pairs_sizes = tqdm_parallel_map(
+        executor,
+        lambda x: compressed_size(
+            filename = x,
+            algorithm = compression,
+            save_directory = saveCompression
+            ),
+        itertools.permutations(compress_dict.keys())
+    )
+    compressed_pairs_dict = dict(compressed_pairs_sizes)
+    # @TODO finish this
+
+
+
+
+
+
+
     #
     #
     # df = pd.DataFrame(distances, columns=["file", "file2", "ncd"])#.to_csv("out.csv", index=False)
@@ -43,14 +68,6 @@ def cli(fasta, directories, numThreads, compression, showProgress, saveCompressi
     # df.pivot(index='file', columns='file2', values='ncd').to_csv(output)
 
 
-def extract_sequences(filepath, reverse_complement=False):
-    seq = ""
-    for seq_record in SeqIO.parse(filepath, "fasta"):
-        if reverse_complement:
-            seq += str(seq_record.seq.reverse_complement())
-        else:
-            seq += str(seq_record.seq)
-    return seq
 
 
 def tqdm_parallel_map(executor, fn, *iterables, **kwargs):
@@ -73,8 +90,7 @@ def tqdm_parallel_map(executor, fn, *iterables, **kwargs):
 
 def compute_parallel(comparison, algorithm, saveCompression="", reverse_complement=False):
     #Compute a distance between a and b
-    sequences = return_byte(extract_sequences(comparison[0], reverse_complement=reverse_complement),
-                            extract_sequences(comparison[1], reverse_complement=reverse_complement))
+
     sizes = compressed_size(sequences, algorithm, saveCompression, comparison)
     ncd = compute_distance(sizes[0], sizes[1], sizes[2])
     return comparison[0], comparison[1], ncd
