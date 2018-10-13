@@ -28,7 +28,8 @@ def return_byte(sequence1, sequence2):
     seq1 = bytes(sequence1, 'utf-8')
     seq2 = bytes(sequence2, 'utf-8')
     return seq1, seq2, seq1 + seq2
-def compressed_size(sequences, algorithm, saveCompression, comparison):
+
+def compressed_size(sequence, algorithm, filename=None, save_directory=None):
     extension = {
         "lzma": ".lzma",
         "gzip": ".gz",
@@ -37,52 +38,29 @@ def compressed_size(sequences, algorithm, saveCompression, comparison):
         "lz4": ".lz4"
     }
     if algorithm == "lzma":
-        compressed_seq1 = lzma.compress(sequences[0])
-        compressed_seq2 = lzma.compress(sequences[1])
-        compressed_seqconcat = lzma.compress(sequences[2])
-    if algorithm == "gzip":
-        compressed_seq1 = gzip.compress(sequences[0])
-        compressed_seq2 = gzip.compress(sequences[1])
-        compressed_seqconcat = gzip.compress(sequences[2])
-    if algorithm == "bzip2":
-        compressed_seq1 = bz2.compress(sequences[0])
-        compressed_seq2 = bz2.compress(sequences[1])
-        compressed_seqconcat = bz2.compress(sequences[2])
-    if algorithm == "zlib":
-        compressed_seq1 = zlib.compress(sequences[0])
-        compressed_seq2 = zlib.compress(sequences[1])
-        compressed_seqconcat = zlib.compress(sequences[2])
-    if algorithm == "lz4":
-        compressed_seq1 = lz4framed.compress(sequences[0])
-        compressed_seq2 = lz4framed.compress(sequences[1])
-        compressed_seqconcat = lz4framed.compress(sequences[2])
-    if algorithm == 'snappy':
-        compressed_seq1 = snappy.compress(sequences[0])
-        compressed_seq2 = snappy.compress(sequences[1])
-        compressed_seqconcat = snappy.compress(sequences[2])
+        compressed_seq = lzma.compress(sequence)
+    elif algorithm == "gzip":
+        compressed_seq = gzip.compress(sequence)
+    elif algorithm == "bzip2":
+        compressed_seq = bz2.compress(sequence)
+    elif algorithm == "zlib":
+        compressed_seq = zlib.compress(sequence)
+    elif algorithm == "lz4":
+        compressed_seq = lz4framed.compress(sequence)
+    elif algorithm == 'snappy':
+        compressed_seq = snappy.compress(sequence)
 
-    if saveCompression != "":
-        f = open(os.path.join(saveCompression, comparison[0] + extension[algorithm]), 'wb')
-        f.write(compressed_seq1)
-        f.close()
-        f = open(os.path.join(saveCompression, comparison[1] + extension[algorithm]), 'wb')
-        f.write(compressed_seq2)
-        f.close()
-        f = open(os.path.join(saveCompression, comparison[2] + extension[algorithm]), 'wb')
-        f.write(compressed_seqconcat)
-            f.close()
+    if save:
+        with open(os.path.join(save_directory, filename + extension[algorithm]), 'wb') as f:
+            f.write(compressed_seq)
 
-    compressed_seq1_size = sys.getsizeof(compressed_seq1)
-    compressed_seq2_size = sys.getsizeof(compressed_seq2)
-    compressed_seqconcat_size = sys.getsizeof(compressed_seqconcat)
-    return(compressed_seq1_size, compressed_seq2_size, compressed_seqconcat_size)
+    return sys.getsizeof(compressed_seq)
 
 #calculates NCD for 2 sequence sizes and their concatenation size
 def compute_distance(x, y, cxy):
     if x > y:
-        distance = ((cxy - y) / x)
+        return ((cxy - y) / x)
     elif y > x:
-        distance = ((cxy - x) / y)
+        return ((cxy - x) / y)
     else:
-        distance = ((cxy - x) / x)
-    return distance
+        return ((cxy - x) / x)
