@@ -61,17 +61,18 @@ def compressed_size(sequences, algorithm, saveCompression, comparison):
         compressed_seq1 = snappy.compress(sequences[0])
         compressed_seq2 = snappy.compress(sequences[1])
         compressed_seqconcat = snappy.compress(sequences[2])
-  
+
     if saveCompression != "":
-      f = open(os.path.join(saveCompression,comparison[0] + extension[algorithm]))
+      f = open(os.path.join(saveCompression,comparison[0] + extension[algorithm]), 'w+')
       f.write(compressed_seq1)
       f.close()
-      f = open(os.path.join(saveCompression, comparison[0] + extension[algorithm]))
+      f = open(os.path.join(saveCompression, comparison[0] + extension[algorithm]), 'w+')
       f.write(compressed_seq2)
       f.close()
-      f = open(os.path.join(saveCompression,comparison[2] + extension[algorithm]))
+      f = open(os.path.join(saveCompression,comparison[2] + extension[algorithm]), 'w+')
       f.write(compressed_seqconcat)
-      
+	  f.close()
+
     compressed_seq1_size = sys.getsizeof(compressed_seq1)
     compressed_seq2_size = sys.getsizeof(compressed_seq2)
     compressed_seqconcat_size = sys.getsizeof(compressed_seqconcat)
