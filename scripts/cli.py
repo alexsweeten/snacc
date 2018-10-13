@@ -17,7 +17,7 @@ def extract_sequences(filepath, reverse_complement=False):
             seq += str(seq_record.seq)
     return seq
 
-  
+
 def tqdm_parallel_map(showProgress, executor, fn, *iterables, **kwargs):
     """
     Equivalent to executor.map(fn, *iterables),
@@ -36,7 +36,7 @@ def tqdm_parallel_map(showProgress, executor, fn, *iterables, **kwargs):
         for f in concurrent.futures.as_completed(futures_list):
             yield f.result()
 
-def compute_parallel(comparison, algorithm, saveCompression = "", reverse_complement=False):
+def compute_parallel(comparison, algorithm, saveCompression = "", reverse_complement=False, bwtDiskDict=dict()):
     #Compute a distance between a and b
     sequences = return_byte(extract_sequences(comparison[0], reverse_complement=reverse_complement),
                             extract_sequences(comparison[1], reverse_complement=reverse_complement))
@@ -51,11 +51,27 @@ def compute_parallel(comparison, algorithm, saveCompression = "", reverse_comple
 @click.option("-n", "--num-threads", "numThreads", type=int, default=None, help="Number of Threads to use (default 5 * number of cores)")
 @click.option("-o", "--output", type=click.Path(dir_okay=False, exists=False), help="The location for the output CSV file")
 @click.option("-s", "--save-compression", "saveCompression", default="", type=str, help="Save compressed sequence files to the specified directory")
-@click.option("-c", "--compression", default="lzma", type=click.Choice(['lzma', 'gzip', 'bzip2', 'zlib', 'lz4', 'snappy']), help="The compression algorithm to use")
+@click.option("-c", "--compression", default="lzma", type=click.Choice(['bwt-disk','lzma', 'gzip', 'bzip2', 'zlib', 'lz4', 'snappy']), help="The compression algorithm to use")
 @click.option("-p", "--show-progress", "showProgress", default=True, type=bool, help="Show a progress bar for computing compression distances")
 @click.option("-r", "--reverse_complement", is_flag=True, default=False, help="Whether to use the reverse complement of the sequence")
-def cli(fasta, directories, numThreads, compression, showProgress, saveCompression, output, reverse_complement):
-
+@click.option("-bO", "--bwte-out", "bwteOut", type=str, help="BWT-Disk: BWT of input FASTA file")
+@click.option("-bM", "--bwte-mem", "bwteMem", type=int, help="BWT-Disk: internal memory to be used in bwt-disk in MB (def. 256 MB)")
+@click.option("-bC", "--bwte-compress", "bwteCompress", type=click.Choice(['gzip','lzma']), help="BWT-Disk: compression to be used after running bwt-disk")
+@click.option("-bF", "--bwte-encoding", "bwteEncode", type=click.Choice(['rle-range-encode','dna5-symbol']), help="BWT-Disk: Encoding for DNA sequence, rle + range encoding or DNA 5 symbols encoding")
+def cli(fasta, directories, numThreads, compression, showProgress, saveCompression, output, reverse_complement, bwteOut, bwteMem, bwteOut, bwteEncode):
+    if compression == 'bwt-disk': #construct input dictionary to bwt-disk executable
+        filters = {
+            'gzip': 1,
+            'rle-range-encode' : 2,
+            'dna5-symbol': 3,
+            'lzma': 4
+        }
+        bwtDict = {
+            'bwt_out': ['-o', bwteOut],
+            'bwt_mem': ['-m', bwteMem],
+            'bwt_encode': ['-y', filters[bwteEncode]],
+            'bwt_compress': ['-z', filters[bwteCompress]]
+        }
     # generate a list of absolute paths containing the files to be compared
     files = list(fasta)
 
@@ -67,7 +83,7 @@ def cli(fasta, directories, numThreads, compression, showProgress, saveCompressi
     comparisons = tqdm(list(product(files, repeat=2)))
 
     executor = concurrent.futures.ThreadPoolExecutor(max_workers=numThreads)
-    distances = tqdm_parallel_map(showProgress, executor, lambda x: compute_parallel(x, algorithm=compression, saveCompression=saveCompression, reverse_complement=reverse_complement), comparisons)
+    distances = tqdm_parallel_map(showProgress, executor, lambda x: compute_parallel(x, algorithm=compression, saveCompression=saveCompression, reverse_complement=reverse_complement, bwtDiskDict=bwtDict), comparisons)
 
 
     df = pd.DataFrame(distances, columns=["file", "file2", "ncd"])#.to_csv("out.csv", index=False)
