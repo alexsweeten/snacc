@@ -25,5 +25,4 @@ def runBwtDisk(fasta, save, inputs):
 		cmd += inputs[key]
 	subprocess.run(cmd + [fasta])
 	output = fasta + ".bwt" + extensions[inputs['bwt_compress']]]
-	if
 	return open(output, 'rb')
