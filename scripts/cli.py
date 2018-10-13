@@ -37,7 +37,7 @@ def tqdm_parallel_map(showProgress, executor, fn, *iterables, **kwargs):
         for f in concurrent.futures.as_completed(futures_list):
             yield f.result()
 
-def compute_parallel(comparison, algorithm, saveCompression = "", reverse_complement=False, bwtDiskDict=dict()):
+def compute_parallel(comparison, algorithm, saveCompression="", reverse_complement=False, bwtDiskDict=dict()):
     #Compute a distance between a and b
     sequences = return_byte(extract_sequences(comparison[0], reverse_complement=reverse_complement),
                             extract_sequences(comparison[1], reverse_complement=reverse_complement))
@@ -52,18 +52,18 @@ def compute_parallel(comparison, algorithm, saveCompression = "", reverse_comple
 @click.option("-n", "--num-threads", "numThreads", type=int, default=None, help="Number of Threads to use (default 5 * number of cores)")
 @click.option("-o", "--output", required=True, type=click.Path(dir_okay=False, exists=False), help="The location for the output CSV file")
 @click.option("-s", "--save-compression", "saveCompression", type=click.Path(dir_okay=True, file_okay=False, resolve_path=True), help="Save compressed sequence files to the specified directory")
-@click.option("-c", "--compression", default="lzma", type=click.Choice(['bwt-disk','lzma', 'gzip', 'bzip2', 'zlib', 'lz4', 'snappy']), help="The compression algorithm to use")
+@click.option("-c", "--compression", default="lzma", type=click.Choice(['bwt-disk', 'lzma', 'gzip', 'bzip2', 'zlib', 'lz4', 'snappy']), help="The compression algorithm to use")
 @click.option("-p", "--show-progress", "showProgress", default=True, type=bool, help="Whether to show a progress bar for computing compression distances")
 @click.option("-r", "--reverse_complement", is_flag=True, default=False, help="Whether to use the reverse complement of the sequence")
 @click.option("-bM", "--bwte-mem", "bwteMem", type=int, help="BWT-Disk: internal memory to be used in bwt-disk in MB (def. 256 MB)")
-@click.option("-bC", "--bwte-compress", "bwteCompress", type=click.Choice(['gzip','lzma','rle-range-encode','dna5-symbol']), default = 'lzma', help="BWT-Disk: compression to be used after running bwt-disk")
+@click.option("-bC", "--bwte-compress", "bwteCompress", type=click.Choice(['gzip', 'lzma', 'rle-range-encode', 'dna5-symbol']), default='lzma', help="BWT-Disk: compression to be used after running bwt-disk")
 def cli(fasta, directories, numThreads, compression, showProgress, saveCompression, output, reverse_complement, bwteMem, bwteCompress):
     bwtDict = {}
     if compression == 'bwt-disk': #construct input dictionary to bwt-disk executable
         filters = {
-            '' : 0,
+            '': 0,
             'gzip': 1,
-            'rle-range-encode' : 2,
+            'rle-range-encode': 2,
             'dna5-symbol': 3,
             'lzma': 4
         }
@@ -79,10 +79,12 @@ def cli(fasta, directories, numThreads, compression, showProgress, saveCompressi
             for f in filenames:
                 files.append(os.path.abspath(os.path.join(dirpath, f)))
     files = list(set(files)) # remove duplicates
+    files = [_file for _file in files if _file.endswith(("fa", "fasta", "faa", "fna"))]
     comparisons = tqdm(list(product(files, repeat=2)))
 
     executor = concurrent.futures.ThreadPoolExecutor(max_workers=numThreads)
-    distances = tqdm_parallel_map(showProgress, executor, lambda x: compute_parallel(x, algorithm=compression, saveCompression=saveCompression, reverse_complement=reverse_complement, bwtDiskDict=bwtDict), comparisons)
+    distances = tqdm_parallel_map(showProgress, executor, lambda x: compute_parallel(x, algorithm=compression,
+                                                                                     saveCompression=saveCompression, reverse_complement=reverse_complement, bwtDiskDict=bwtDict), comparisons)
 
     df = pd.DataFrame(distances, columns=["file", "file2", "ncd"])#.to_csv("out.csv", index=False)
 
