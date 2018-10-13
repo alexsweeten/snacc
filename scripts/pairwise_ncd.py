@@ -61,7 +61,7 @@ def compressed_size(sequences, algorithm, saveCompression, comparison):
         compressed_seq2 = snappy.compress(sequences[1])
         compressed_seqconcat = snappy.compress(sequences[2])
 
-    if saveCompression != "":
+    if saveCompression:
         f = open(os.path.join(saveCompression, comparison[0] + extension[algorithm]), 'wb')
         f.write(compressed_seq1)
         f.close()
