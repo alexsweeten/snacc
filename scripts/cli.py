@@ -51,7 +51,7 @@ def compute_parallel(comparison, algorithm, saveCompression="", reverse_compleme
 @click.option("-n", "--num-threads", "numThreads", type=int, default=None, help="Number of Threads to use (default 5 * number of cores)")
 @click.option("-o", "--output", required=True, type=click.Path(dir_okay=False, exists=False), help="The location for the output CSV file")
 @click.option("-s", "--save-compression", "saveCompression", type=click.Path(dir_okay=True, file_okay=False, resolve_path=True), help="Save compressed sequence files to the specified directory")
-@click.option("-c", "--compression", default="lzma", type=click.Choice(['bwt-disk', 'lzma', 'gzip', 'bzip2', 'zlib', 'lz4', 'snappy']), help="The compression algorithm to use")
+@click.option("-c", "--compression", default="lzma", type=click.Choice(['bwt-disk', 'lzma', 'gzip', 'bzip2', 'zlib', 'lz4', 'snappy']), help="The compression algorithm to use. Defaults to lzma.")
 @click.option("-p", "--show-progress", "showProgress", default=True, type=bool, help="Whether to show a progress bar for computing compression distances")
 @click.option("-r", "--reverse_complement", is_flag=True, default=False, help="Whether to use the reverse complement of the sequence")
 @click.option("-bM", "--bwte-mem", "bwteMem", type=int, help="BWT-Disk: internal memory to be used in bwt-disk in MB (def. 256 MB)")
