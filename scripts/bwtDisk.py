@@ -24,5 +24,5 @@ def runBwtDisk(fasta, **kwargs):
 		cmd += kwargs[key]
 	subprocess.run(cmd)
 	output = kwargs['bwt_out'] + extensions[kwargs['bwt_encode']] + extensions[kwargs['bwt_compress']]
-	subprocess.run(['mv', kwargs['bwt_out'] + ".aux", output])
+	subprocess.run(['mv', kwargs['bwt_out'], output])
 	return open(output, 'rb')
