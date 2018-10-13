@@ -1,7 +1,7 @@
 import click
 import os
 import concurrent.futures
-from itertools import product,permutations
+from itertools import product,permutations,combinations
 from tqdm import tqdm
 import pandas as pd
 from Bio import SeqIO
@@ -53,7 +53,17 @@ def cli(fasta, directories, numThreads, compression, showProgress, saveCompressi
         itertools.permutations(compress_dict.keys())
     )
     compressed_pairs_dict = dict(compressed_pairs_sizes)
-    # @TODO finish this
+
+    distances = []
+    for pair in compressed_dict.combinations():
+        distances += {
+            pair: compute_distance(
+                compress_dict[pair[0]],
+                compress_dict[pair[1]],
+                compressed_pairs_dict[(pair[0],pair[1]])],
+                compressed_pairs_dict[(pair[1], pair[0])]
+        }
+    print(distances)
 
 
 
