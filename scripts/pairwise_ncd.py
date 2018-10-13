@@ -70,7 +70,7 @@ def compressed_size(sequences, algorithm, saveCompression, comparison):
         f.close()
         f = open(os.path.join(saveCompression, comparison[2] + extension[algorithm]), 'wb')
         f.write(compressed_seqconcat)
-            f.close()
+        f.close()
 
     compressed_seq1_size = sys.getsizeof(compressed_seq1)
     compressed_seq2_size = sys.getsizeof(compressed_seq2)
