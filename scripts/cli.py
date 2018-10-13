@@ -1,11 +1,10 @@
 import click
 import os
 import concurrent.futures
-from itertools import product, permutations, combinations
+import itertools
 from tqdm import tqdm
 import pandas as pd
-from Bio import SeqIO
-from pairwise_ncd import return_byte, compressed_size, compute_distance
+from pairwise_ncd import compressed_size, compute_distance
 
 from pathlib import Path
 
@@ -15,7 +14,7 @@ from pathlib import Path
 @click.option("-n", "--num-threads", "numThreads", type=int, default=None, help="Number of Threads to use (default 5 * number of cores)")
 @click.option("-o", "--output", type=click.Path(dir_okay=False, exists=False), help="The location for the output CSV file")
 @click.option("-s", "--save-compression", "saveCompression", type=click.Path(dir_okay=True, file_okay=False, resolve_path=True), default=None, help="Save compressed sequence files to the specified directory")
-@click.option("-c", "--compression", default="lzma", type=click.Choice(['lzma', 'gzip', 'bzip2', 'zlib', 'lz4', 'snappy']), help="The compression algorithm to use")
+@click.option("-c", "--compression", default="lzma", type=click.Choice(['lzma', 'gzip', 'bzip2', 'zlib', 'lz4', 'snappy']), help="The compression algorithm to use. Defaults to lzma.")
 @click.option("-p", "--show-progress", "showProgress", default=True, type=bool, help="Whether to show a progress bar for computing compression distances")
 @click.option("-r", "--reverse_complement", is_flag=True, default=False, help="Whether to use the reverse complement of the sequence")
 def cli(fasta, directories, numThreads, compression, showProgress, saveCompression, output, reverse_complement):
@@ -35,44 +34,41 @@ def cli(fasta, directories, numThreads, compression, showProgress, saveCompressi
 
     #compute compressed sizes of individual sequences
     print("Compressing individual files...")
-    compressed_sizes = tqdm_parallel_map(executor, lambda x: compressed_size(filename=x,
-                                                                             algorithm=compression,
-                                                                             save_directory=saveCompression,
-                                                                             ), files)
-    compress_dict = dict(compressed_files) # {PATH: compressed size}
+    compressed_sizes = tqdm_parallel_map(executor,
+                                         lambda x: compressed_size(filename=x,
+                                                                   algorithm=compression,
+                                                                   save_directory=saveCompression),
+                                         showProgress,
+                                         files)
+    compressed_dict = dict(compressed_sizes) # {PATH: compressed size}
 
     # compute compressed sizes of all ordered pairs of sequences
     print("Compressing pairs...")
-    compressed_pairs_sizes = tqdm_parallel_map(
-        executor,
-        lambda x: compressed_size(
-            filename=x,
-            algorithm=compression,
-            save_directory=saveCompression
-        ),
-        itertools.permutations(compress_dict.keys())
-    )
-    compressed_pairs_dict = dict(compressed_pairs_sizes)
+    compressed_pairs_sizes = tqdm_parallel_map(executor,
+                                               lambda x: compressed_size(
+                                                   filename=x,
+                                                   algorithm=compression,
+                                                   save_directory=saveCompression),
+                                               showProgress,
+                                               itertools.product(compressed_dict.keys(), repeat=2))
 
-    distances = []
-    for pair in compressed_dict.combinations():
-        distances += {
-            pair: compute_distance(
-                compress_dict[pair[0]],
-                compress_dict[pair[1]],
-                compressed_pairs_dict[(pair[0], pair[1]])],
-            compressed_pairs_dict[(pair[1], pair[0])]
-        }
+    compressed_pairs_dict = dict(compressed_pairs_sizes) # {(A, B): size, (B, A): size,...}
+
+    distances = {}
+    for pair in itertools.product(compressed_dict.keys(), repeat=2):
+        distances[pair] = compute_distance(compressed_dict[pair[0]],
+                                           compressed_dict[pair[1]],
+                                           compressed_pairs_dict[(pair[0], pair[1])],
+                                           compressed_pairs_dict[(pair[1], pair[0])])
     print(distances)
+    lot = []
+    distances = list(distances.items())
+    distances = [(distance[0][0], distance[0][1], distance[1]) for distance in distances]
+    df = pd.DataFrame(distances, columns=["file", "file2", "ncd"])#.to_csv("out.csv", index=False)
+    df.pivot(index='file', columns='file2', values='ncd').to_csv(output)
 
-    #
-    #
-    # df = pd.DataFrame(distances, columns=["file", "file2", "ncd"])#.to_csv("out.csv", index=False)
-    #
-    # df.pivot(index='file', columns='file2', values='ncd').to_csv(output)
 
-
-def tqdm_parallel_map(executor, fn, *iterables, **kwargs):
+def tqdm_parallel_map(executor, fn, showProgress, *iterables, **kwargs):
     """
     Equivalent to executor.map(fn, *iterables),
         but displays a tqdm-based progress bar.

@@ -12,6 +12,7 @@ import bz2
 import gzip
 import snappy
 import lz4framed
+from Bio import SeqIO
 
 def bwt(s):
     """
@@ -23,23 +24,18 @@ def bwt(s):
     return "".join(last_column)
 
 
-#given 2 sequence strings, returns sequences + concatenation as an object of bytes
-def return_byte(sequence1, sequence2):
-    seq1 = bytes(sequence1, 'utf-8')
-    seq2 = bytes(sequence2, 'utf-8')
-    return seq1, seq2, seq1 + seq2
-
 def extract_sequences(filepath, reverse_complement=False):
-	if type(filepath) == tuple:
-		return extract_sequences(filepath[0]) + extract_sequences(filepath[1])
+    if type(filepath) == tuple:
+        return extract_sequences(filepath[0]) + extract_sequences(filepath[1])
     seq = ""
     for seq_record in SeqIO.parse(filepath.absolute(), "fasta"):
         if reverse_complement:
             seq += str(seq_record.seq.reverse_complement())
         else:
             seq += str(seq_record.seq)
+    if not seq:
+        raise ValueError(f"No sequence extracted. Ensure that file {filepath.absolute} contains a proper FASTA definition line (i.e. a line that start with '>sequence_name').")
     return seq
-
 
 def compressed_size(filename, algorithm, reverse_complement=False, save_directory=None):
     '''
@@ -47,7 +43,7 @@ def compressed_size(filename, algorithm, reverse_complement=False, save_director
     Args:
         filename (pathlib.Path)
         algorithm (str)
-		reverse_complement(bool, optional)
+                reverse_complement(bool, optional)
         save_directory (pathlib.Path, optional)
 
     Returns
@@ -55,7 +51,7 @@ def compressed_size(filename, algorithm, reverse_complement=False, save_director
     '''
 
     # check if already compressed @TODO
-	sequence = extract_sequences(filename, reverse_complement=reverse_complement)
+    sequence = bytes(extract_sequences(filename, reverse_complement=reverse_complement), encoding="utf-8")
     extension = {
         "lzma": ".lzma",
         "gzip": ".gz",
@@ -63,6 +59,7 @@ def compressed_size(filename, algorithm, reverse_complement=False, save_director
         "zlib": ".ZLIB",
         "lz4": ".lz4"
     }
+    print(comparison)
     if algorithm == "lzma":
         compressed_seq = lzma.compress(sequence)
     elif algorithm == "gzip":
@@ -80,7 +77,7 @@ def compressed_size(filename, algorithm, reverse_complement=False, save_director
         with open(os.path.join(save_directory.absolute(), filename.name + extension[algorithm]), 'wb') as f:
             f.write(compressed_seq)
 
-    return (filename,sys.getsizeof(compressed_seq))
+    return (filename, sys.getsizeof(compressed_seq))
 #calculates NCD for 2 sequence sizes and their concatenation size
 def compute_distance(x, y, cxy, cyx):
     if x > y:
