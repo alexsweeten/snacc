@@ -60,7 +60,7 @@ def cli(fasta, directories, numThreads, compression, showProgress, saveCompressi
                                            compressed_dict[pair[1]],
                                            compressed_pairs_dict[(pair[0], pair[1])],
                                            compressed_pairs_dict[(pair[1], pair[0])])
-    print(distances)
+
     lot = []
     distances = list(distances.items())
     distances = [(distance[0][0], distance[0][1], distance[1]) for distance in distances]
