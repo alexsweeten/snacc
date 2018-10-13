@@ -56,16 +56,16 @@ def compute_parallel(comparison, algorithm, saveCompression = "", reverse_comple
 @click.option("-r", "--reverse_complement", is_flag=True, default=False, help="Whether to use the reverse complement of the sequence")
 @click.option("-bM", "--bwte-mem", "bwteMem", type=int, help="BWT-Disk: internal memory to be used in bwt-disk in MB (def. 256 MB)")
 @click.option("-bC", "--bwte-compress", "bwteCompress", type=click.Choice(['gzip','lzma','rle-range-encode','dna5-symbol']), default = 'lzma', help="BWT-Disk: compression to be used after running bwt-disk")
-def cli(fasta, directories, numThreads, compression, showProgress, saveCompression, output, reverse_complement, bwteMem, bwteOut, bwteCompress):
+def cli(fasta, directories, numThreads, compression, showProgress, saveCompression, output, reverse_complement, bwteMem, bwteCompress):
     if compression == 'bwt-disk': #construct input dictionary to bwt-disk executable
         filters = {
-            '' : 0
+            '' : 0,
             'gzip': 1,
             'rle-range-encode' : 2,
             'dna5-symbol': 3,
             'lzma': 4
         }
-        bwtDict = {,
+        bwtDict = {
             'bwt_mem': ['-m', bwteMem],
             'bwt_compress': ['-b', filters[bwteCompress]],
         }
