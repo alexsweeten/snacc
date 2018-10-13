@@ -23,7 +23,6 @@ def bwt(s):
     return "".join(last_column)
 
 
-
 #given 2 sequence strings, returns sequences + concatenation as an object of bytes
 def return_byte(sequence1, sequence2):
     seq1 = bytes(sequence1, 'utf-8')
@@ -31,12 +30,12 @@ def return_byte(sequence1, sequence2):
     return seq1, seq2, seq1 + seq2
 def compressed_size(sequences, algorithm, saveCompression, comparison):
     extension = {
-    "lzma": ".lzma",
-    "gzip": ".gz",
-    "bzip2": ".bz2",
-    "zlib": ".ZLIB",
-    "lz4": ".lz4"
-  }
+        "lzma": ".lzma",
+        "gzip": ".gz",
+        "bzip2": ".bz2",
+        "zlib": ".ZLIB",
+        "lz4": ".lz4"
+    }
     if algorithm == "lzma":
         compressed_seq1 = lzma.compress(sequences[0])
         compressed_seq2 = lzma.compress(sequences[1])
@@ -63,15 +62,15 @@ def compressed_size(sequences, algorithm, saveCompression, comparison):
         compressed_seqconcat = snappy.compress(sequences[2])
 
     if saveCompression != "":
-      f = open(os.path.join(saveCompression,comparison[0] + extension[algorithm]), 'wb')
-      f.write(compressed_seq1)
-      f.close()
-      f = open(os.path.join(saveCompression, comparison[0] + extension[algorithm]), 'wb')
-      f.write(compressed_seq2)
-      f.close()
-      f = open(os.path.join(saveCompression,comparison[2] + extension[algorithm]), 'wb')
-      f.write(compressed_seqconcat)
-	  f.close()
+        f = open(os.path.join(saveCompression, comparison[0] + extension[algorithm]), 'wb')
+        f.write(compressed_seq1)
+        f.close()
+        f = open(os.path.join(saveCompression, comparison[1] + extension[algorithm]), 'wb')
+        f.write(compressed_seq2)
+        f.close()
+        f = open(os.path.join(saveCompression, comparison[2] + extension[algorithm]), 'wb')
+        f.write(compressed_seqconcat)
+            f.close()
 
     compressed_seq1_size = sys.getsizeof(compressed_seq1)
     compressed_seq2_size = sys.getsizeof(compressed_seq2)
