@@ -7,3 +7,4 @@ click
 py-lz4framed
 tqdm
 biopython
+snappy
