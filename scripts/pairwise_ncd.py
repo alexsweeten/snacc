@@ -34,7 +34,7 @@ def extract_sequences(filepath, reverse_complement=False):
         else:
             seq += str(seq_record.seq)
     if not seq:
-        raise ValueError(f"No sequence extracted. Ensure that file {filepath.absolute} contains a proper FASTA definition line (i.e. a line that start with '>sequence_name').")
+        raise ValueError(f"No sequence extracted. Ensure that file {filepath.absolute()} contains a proper FASTA definition line (i.e. a line that starts with '>sequence_name').")
     return seq
 
 def compressed_size(filename, algorithm, reverse_complement=False, save_directory=None):
@@ -59,7 +59,6 @@ def compressed_size(filename, algorithm, reverse_complement=False, save_director
         "zlib": ".ZLIB",
         "lz4": ".lz4"
     }
-    print(comparison)
     if algorithm == "lzma":
         compressed_seq = lzma.compress(sequence)
     elif algorithm == "gzip":
