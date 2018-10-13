@@ -30,6 +30,18 @@ def return_byte(sequence1, sequence2):
     return seq1, seq2, seq1 + seq2
 
 def compressed_size(sequence, algorithm, filename=None, save_directory=None):
+    '''
+
+    Args:
+        sequence (str)
+        algorithm (str)
+        filename (pathlib.Path, optional)
+        save_directory (pathlib.Path, optional)
+
+    Returns
+        int: the number of bytes in the compressed file
+    '''
+    # check if already compressed
     extension = {
         "lzma": ".lzma",
         "gzip": ".gz",
@@ -51,16 +63,16 @@ def compressed_size(sequence, algorithm, filename=None, save_directory=None):
         compressed_seq = snappy.compress(sequence)
 
     if save:
-        with open(os.path.join(save_directory, filename + extension[algorithm]), 'wb') as f:
+        with open(os.path.join(save_directory.absolute(), filename.name + extension[algorithm]), 'wb') as f:
             f.write(compressed_seq)
 
     return sys.getsizeof(compressed_seq)
 
 #calculates NCD for 2 sequence sizes and their concatenation size
-def compute_distance(x, y, cxy):
+def compute_distance(x, y, cxy, cyx):
     if x > y:
-        return ((cxy - y) / x)
+        return min((cxy - y) / x, (cyx - y) / x)
     elif y > x:
-        return ((cxy - x) / y)
+        return min((cxy - x) / y, (cyx - x) / y)
     else:
-        return ((cxy - x) / x)
+        return min((cxy - x) / x, (cyx - x) / x)

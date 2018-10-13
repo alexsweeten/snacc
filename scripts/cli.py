@@ -7,43 +7,7 @@ import pandas as pd
 from Bio import SeqIO
 from pairwise_ncd import return_byte, compressed_size, compute_distance
 
-
-def extract_sequences(filepath, reverse_complement=False):
-    seq = ""
-    for seq_record in SeqIO.parse(filepath, "fasta"):
-        if reverse_complement:
-            seq += str(seq_record.seq.reverse_complement())
-        else:
-            seq += str(seq_record.seq)
-    return seq
-
-  
-def tqdm_parallel_map(showProgress, executor, fn, *iterables, **kwargs):
-    """
-    Equivalent to executor.map(fn, *iterables),
-  	but displays a tqdm-based progress bar.
-  	Does not support timeout or chunksize as executor.submit is used internally
-    **kwargs is passed to tqdm.
-    """
-    futures_list = []
-    for iterable in iterables:
-        futures_list += [executor.submit(fn, i) for i in iterable]
-    if showProgress:
-        print("Processes submitted, starting compression distance calculation...")
-        for f in tqdm(concurrent.futures.as_completed(futures_list), total=len(futures_list), **kwargs):
-            yield f.result()
-    else:
-        for f in concurrent.futures.as_completed(futures_list):
-            yield f.result()
-
-def compute_parallel(comparison, algorithm, saveCompression = "", reverse_complement=False):
-    #Compute a distance between a and b
-    sequences = return_byte(extract_sequences(comparison[0], reverse_complement=reverse_complement),
-                            extract_sequences(comparison[1], reverse_complement=reverse_complement))
-    sizes = compressed_size(sequences, algorithm, saveCompression, comparison)
-    ncd = compute_distance(sizes[0], sizes[1], sizes[2])
-    return comparison[0], comparison[1], ncd
-
+from pathlib import Path
 
 @click.command(context_settings=dict(help_option_names=['-h', '--help']))
 @click.option("-f", "--fasta", type=click.Path(dir_okay=False, exists=True, resolve_path=True), multiple=True, help="FASTA file containing sequence to compare")
@@ -57,22 +21,64 @@ def compute_parallel(comparison, algorithm, saveCompression = "", reverse_comple
 def cli(fasta, directories, numThreads, compression, showProgress, saveCompression, output, reverse_complement):
 
     # generate a list of absolute paths containing the files to be compared
-    files = list(fasta)
+    files = [Path(f) for f in fasta]
 
     for directory in directories:
         for dirpath, _, filenames in os.walk(directory):
             for f in filenames:
-                files.append(os.path.abspath(os.path.join(dirpath, f)))
-    files = list(set(files)) # remove duplicates
-    comparisons = tqdm(list(product(files, repeat=2)))
+                f = Path(os.path.join(dirpath, f))
+                if f.suffix.lower() in [".fasta", ".fna", ".fa", ".faa"]:
+                    files.append()
+    files = list(set(files)) # remove any duplicates
 
     executor = concurrent.futures.ThreadPoolExecutor(max_workers=numThreads)
-    distances = tqdm_parallel_map(showProgress, executor, lambda x: compute_parallel(x, algorithm=compression, saveCompression=saveCompression, reverse_complement=reverse_complement), comparisons)
+    compressed_sizes = tqdm_parallel_map(executor, lambda x: compress_parallel(x,
+                                                                               algorithm=compression,
+                                                                               saveCompression=saveCompression,
+                                                                               reverse_complement=reverse_complement))
+    #
+    #
+    # df = pd.DataFrame(distances, columns=["file", "file2", "ncd"])#.to_csv("out.csv", index=False)
+    #
+    # df.pivot(index='file', columns='file2', values='ncd').to_csv(output)
 
 
-    df = pd.DataFrame(distances, columns=["file", "file2", "ncd"])#.to_csv("out.csv", index=False)
+def extract_sequences(filepath, reverse_complement=False):
+    seq = ""
+    for seq_record in SeqIO.parse(filepath, "fasta"):
+        if reverse_complement:
+            seq += str(seq_record.seq.reverse_complement())
+        else:
+            seq += str(seq_record.seq)
+    return seq
 
-    df.pivot(index='file', columns='file2', values='ncd').to_csv(output)
+
+def tqdm_parallel_map(executor, fn, *iterables, **kwargs):
+    """
+    Equivalent to executor.map(fn, *iterables),
+        but displays a tqdm-based progress bar.
+        Does not support timeout or chunksize as executor.submit is used internally
+    **kwargs is passed to tqdm.
+    """
+    futures_list = []
+    for iterable in iterables:
+        futures_list += [executor.submit(fn, i) for i in iterable]
+    if showProgress:
+        print("Processes submitted, starting compression distance calculation...")
+        for f in tqdm(concurrent.futures.as_completed(futures_list), total=len(futures_list), **kwargs):
+            yield f.result()
+    else:
+        for f in concurrent.futures.as_completed(futures_list):
+            yield f.result()
+
+def compute_parallel(comparison, algorithm, saveCompression="", reverse_complement=False):
+    #Compute a distance between a and b
+    sequences = return_byte(extract_sequences(comparison[0], reverse_complement=reverse_complement),
+                            extract_sequences(comparison[1], reverse_complement=reverse_complement))
+    sizes = compressed_size(sequences, algorithm, saveCompression, comparison)
+    ncd = compute_distance(sizes[0], sizes[1], sizes[2])
+    return comparison[0], comparison[1], ncd
+
 
 if __name__ == "__main__":
-  cli()
+    cli()
