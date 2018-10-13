@@ -10,6 +10,7 @@ from pairwise_ncd import return_byte, compressed_size, compute_distance
 
 def extract_sequences(filepath, reverse_complement=False):
     seq = ""
+    print(filepath)
     for seq_record in SeqIO.parse(filepath, "fasta"):
         if reverse_complement:
             seq += str(seq_record.seq.reverse_complement())
@@ -57,6 +58,7 @@ def compute_parallel(comparison, algorithm, saveCompression = "", reverse_comple
 @click.option("-bM", "--bwte-mem", "bwteMem", type=int, help="BWT-Disk: internal memory to be used in bwt-disk in MB (def. 256 MB)")
 @click.option("-bC", "--bwte-compress", "bwteCompress", type=click.Choice(['gzip','lzma','rle-range-encode','dna5-symbol']), default = 'lzma', help="BWT-Disk: compression to be used after running bwt-disk")
 def cli(fasta, directories, numThreads, compression, showProgress, saveCompression, output, reverse_complement, bwteMem, bwteCompress):
+    bwtDict = {}
     if compression == 'bwt-disk': #construct input dictionary to bwt-disk executable
         filters = {
             '' : 0,
@@ -67,7 +69,7 @@ def cli(fasta, directories, numThreads, compression, showProgress, saveCompressi
         }
         bwtDict = {
             'bwt_mem': ['-m', bwteMem],
-            'bwt_compress': ['-b', filters[bwteCompress]],
+            'bwt_compress': ['-b', filters[bwteCompress]]
         }
     # generate a list of absolute paths containing the files to be compared
     files = list(fasta)
