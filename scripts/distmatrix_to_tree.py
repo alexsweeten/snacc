@@ -19,20 +19,21 @@ def hierarchical(D_sym):
   linkage = scipy.cluster.hierarchy.linkage(D_cond, method='average')
   return linkage
   
-def plot_hierarchical(linkage, plt_file):
-  plt.figure()
+def plot_hierarchical(linkage, plt_file,n):
+  plt.figure(figsize=(min(3+0.1*n,13),4))
   dn = scipy.cluster.hierarchy.dendrogram(linkage)
-  plt.savefig(plt_file)
+  plt.savefig(plt_file, bbox_inches="tight")
     
 def main(csv_file, plt_file):
   # Does everything in order
   D = read_dist(csv_file)
   D_sym = metrify(D)
+  n,_ = D_sym.shape
   linkage = hierarchical(D_sym)
-  plot_hierarchical(linkage, plt_file)
+  plot_hierarchical(linkage, plt_file,n)
   
 def _test_dist2tree():
   #main("../test_dataset/distance_matrix_mysteryGenome1-8.csv", "../test_dataset/distance_matrix_mysteryGenome1-8_tree.png")
-  main("../test_dataset/sample100.csv", "../test_dataset/sample100_tree.png")
+  main("../test_dataset/ecoli_mash.csv", "../test_dataset/ecoli_mash_tree.png")
 if __name__=="__main__":
   _test_dist2tree()
