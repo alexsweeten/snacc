@@ -19,10 +19,11 @@ def runBwtDisk(fasta, **kwargs):
 			(file): The return statement. A binary file object of the BWT-Disk
 					transformed sequence thats compressed
 	""""
+	extensions = ['','.gz', '.rrc', '.atn', '.lzma']
 	cmd = ["./../bin/bwt_disk/bwte"]
 	for key in kwargs:
 		cmd += kwargs[key]
-	subprocess.run(cmd)
-	output = kwargs['bwt_out'] + extensions[kwargs['bwt_encode']] + extensions[kwargs['bwt_compress']]
+	subprocess.run(cmd + [fasta])
+	output = fasta + ".bwt" + extensions[kwargs['bwt_compress']]]
 	subprocess.run(['mv', kwargs['bwt_out'], output])
 	return open(output, 'rb')

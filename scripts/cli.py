@@ -54,11 +54,9 @@ def compute_parallel(comparison, algorithm, saveCompression = "", reverse_comple
 @click.option("-c", "--compression", default="lzma", type=click.Choice(['bwt-disk','lzma', 'gzip', 'bzip2', 'zlib', 'lz4', 'snappy']), help="The compression algorithm to use")
 @click.option("-p", "--show-progress", "showProgress", default=True, type=bool, help="Whether to show a progress bar for computing compression distances")
 @click.option("-r", "--reverse_complement", is_flag=True, default=False, help="Whether to use the reverse complement of the sequence")
-@click.option("-bO", "--bwte-out", "bwteOut", type=str, help="BWT-Disk: BWT of input FASTA file")
 @click.option("-bM", "--bwte-mem", "bwteMem", type=int, help="BWT-Disk: internal memory to be used in bwt-disk in MB (def. 256 MB)")
-@click.option("-bC", "--bwte-compress", "bwteCompress", type=click.Choice(['gzip','lzma']), help="BWT-Disk: compression to be used after running bwt-disk")
-@click.option("-bF", "--bwte-encoding", "bwteEncode", type=click.Choice(['rle-range-encode','dna5-symbol']), help="BWT-Disk: Encoding for DNA sequence, rle + range encoding or DNA 5 symbols encoding")
-def cli(fasta, directories, numThreads, compression, showProgress, saveCompression, output, reverse_complement, bwteOut, bwteMem, bwteOut, bwteEncode):
+@click.option("-bC", "--bwte-compress", "bwteCompress", type=click.Choice(['gzip','lzma','rle-range-encode','dna5-symbol']), help="BWT-Disk: compression to be used after running bwt-disk")
+ddef cli(fasta, directories, numThreads, compression, showProgress, saveCompression, output, reverse_complement, bwteMem, bwteOut, bwteCompress):
     if compression == 'bwt-disk': #construct input dictionary to bwt-disk executable
         filters = {
             'gzip': 1,
@@ -66,11 +64,9 @@ def cli(fasta, directories, numThreads, compression, showProgress, saveCompressi
             'dna5-symbol': 3,
             'lzma': 4
         }
-        bwtDict = {
-            'bwt_out': ['-o', bwteOut],
+        bwtDict = {,
             'bwt_mem': ['-m', bwteMem],
-            'bwt_encode': ['-y', filters[bwteEncode]],
-            'bwt_compress': ['-z', filters[bwteCompress]]
+            'bwt_compress': ['-b', filters[bwteCompress]],
         }
     # generate a list of absolute paths containing the files to be compared
     files = list(fasta)
