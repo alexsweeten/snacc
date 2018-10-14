@@ -1,7 +1,4 @@
-# snacc
-> sequence non alignment compression comparison
-
-![logo](https://github.com/SweetiePi/bioncd-hackseq/raw/master/logo/Snacc.png)
+![logo](https://github.com/SweetiePi/bioncd-hackseq/blob/master/logo/snacc-header.jpg)
 
 **BIO**logical implementation of the **N**ormalized **C**ompression **D**istance (name tentative to change). This repository was initated for the [hackseq18](https://www.hackseq.com) project titled "Alignment-free Pathogen Genomics", with development scheduled for October 12th - 14th, 2018.
 
