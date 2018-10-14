@@ -18,7 +18,8 @@ def reduce_dimension(D, projection='mds'):
                  'tsne': manifold.TSNE(2, metric="precomputed"),
                  'umap': umap.UMAP(n_components=2, metric='precomputed'),
                  # For use with Affinity Matrices:
-                 'spectralembedding': manifold.SpectralEmbedding(2, affinity="precomputed"),
+                 'spectralembedding': manifold.SpectralEmbedding(
+                     2, affinity="precomputed"),
                  # These should not be used:
                  'pca': PCA(2),
                  'gaussianrp': random_projection.GaussianRandomProjection(2)
@@ -29,10 +30,14 @@ def reduce_dimension(D, projection='mds'):
 
 def clustering(M, algorithm='agglomerative', **kwargs):
     algorithms = {
-            # For use with affinity matrices. Note that smaller affinity means more separation.
-            'affinity': cluster.AffinityPropagation(affinity='precomputed', **kwargs),
-            'spectral': cluster.SpectralClustering(affinity='precomputed', **kwargs),
-            'agglomerative': cluster.AgglomerativeClustering(affinity='precomputed', linkage='average', **kwargs),
+            # For use with affinity matrices.
+            # Note that smaller affinity means more separation.
+            'affinity': cluster.AffinityPropagation(
+                affinity='precomputed', **kwargs),
+            'spectral': cluster.SpectralClustering(
+                affinity='precomputed', n_clusters=2, **kwargs),
+            'agglomerative': cluster.AgglomerativeClustering(
+                affinity='precomputed', linkage='average', **kwargs),
             # For use with projections:
             'kmeans': cluster.KMeans(M, **kwargs),
             'dbscan': cluster.dbscan(M, **kwargs)
@@ -47,12 +52,15 @@ def f_inverse(D):
     return E
 
 
-def distance_to_affinity(D, function=f_inverse):
+def f_subtract(D):
+    return 1. - D
+
+
+def distance_to_affinity(D, function=f_subtract):
     return function(D)
 
 
 def plot_labels(ax, X, labels):
-    n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
     cluster_colors = [color_palette(x) if x >= 0
                       else (0.5, 0.5, 0.5)
                       for x in labels]
@@ -83,6 +91,6 @@ def _test_all(csv_file, img_file):
 
 
 if __name__ == "__main__":
-    img_file = "../test_dataset/ecoli_mash_scatter.png"
-    csv_file = "../test_dataset/ecoli_mash.csv"
+    img_file = "../test_dataset/streptococcus_lzma.png"
+    csv_file = "../test_dataset/streptococcus_lzma_dist_matrix.csv"
     _test_all(csv_file, img_file)
