@@ -8,5 +8,4 @@ tqdm
 biopython
 umap-learn
 jinja2
-xhtml2pdf
 markdown

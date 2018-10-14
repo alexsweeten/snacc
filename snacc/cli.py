@@ -14,26 +14,28 @@ import sklearn
 import umap
 from markdown import markdown
 from tqdm import tqdm
-from xhtml2pdf import pisa
 
 from .pairwise_ncd import compressed_size, compute_distance
 from .version import __version__
 
 
 @click.command(context_settings=dict(help_option_names=['-h', '--help']))
-@click.option("-f", "--fasta", type=click.Path(dir_okay=False, exists=True, resolve_path=True), multiple=True, help="FASTA file containing sequence to compare")
-@click.option("-d", "--directory", "directories", type=click.Path(dir_okay=True, file_okay=False, exists=True, resolve_path=True), multiple=True, help="Directory containing FASTA files to compare")
-@click.option("-n", "--num-threads", "numThreads", type=int, default=None, help="Number of Threads to use (default 5 * number of cores)")
-@click.option("-o", "--output", type=click.Path(dir_okay=False, exists=False), help="The location for the output CSV file")
-@click.option("-s", "--save-compression", "saveCompression", type=click.Path(dir_okay=True, file_okay=False, resolve_path=True), default=None, help="Save compressed sequence files to the specified directory")
+@click.option("-f", "--fasta", type=click.Path(dir_okay=False, exists=True, resolve_path=True), multiple=True, help="FASTA file containing sequence to compare.")
+@click.option("-d", "--directory", "directories", type=click.Path(dir_okay=True, file_okay=False, exists=True, resolve_path=True), multiple=True, help="Directory containing FASTA files to compare.")
+@click.option("-n", "--num-threads", "numThreads", type=int, default=None, help="Number of Threads to use (default 5 * number of cores).")
+@click.option("-o", "--output", type=click.Path(dir_okay=False, exists=False), help="The location for the output CSV file.")
+@click.option("-s", "--save-compression", "saveCompression", type=click.Path(dir_okay=True, file_okay=False, resolve_path=True), default=None, help="Save compressed sequence files to the specified directory.")
 @click.option("-c", "--compression", default="lzma", type=click.Choice(['lzma', 'gzip', 'bzip2', 'zlib', 'lz4', 'snappy', 'bwt-disk']), help="The compression algorithm to use. Defaults to lzma.")
-@click.option("-p", "--show-progress", "showProgress", default=True, type=bool, help="Whether to show a progress bar for computing compression distances")
-@click.option("-r", "--reverse_complement", is_flag=True, default=False, help="Whether to use the reverse complement of the sequence")
-@click.option("-b", "--burrows-wheeler", "BWT", is_flag=True, default=False, help="Whether to compute the Burrows-Wheeler Tranform prior to compression and reverse complement (default 256 MB)")
-@click.option("-bM", "--bwte-mem", "bwteMem", type=int, default=256, help="BWT-Disk option: The amount of memory in MB for use in the bwt-disk executable")
-@click.option("-bC", "--bwte-compress", "bwteCompress", type=click.Choice(['None', 'gzip', 'rle-range-encoding', 'dna5-symbol', 'lzma']), default='gzip', help="BWT-Disk Option: The compression to use when calling bwt-disk before compression, may require separate libraries if not using default")
-@click.option("-l", "--log-mode", type=click.Choice(["html", "md"]), help="The output format for the report.")
-def cli(fasta, directories, numThreads, compression, showProgress, saveCompression, output, reverse_complement, BWT, bwteMem, bwteCompress, log_mode):
+@click.option("--show-progress/--no-show-progress", "showProgress", default=True, help="Whether to show a progress bar for computing compression distances.")
+@click.option("-r", "--reverse_complement", is_flag=True, default=False, help="Whether to use the reverse complement of the sequence.")
+@click.option("-b", "--burrows-wheeler", "BWT", is_flag=True, default=False, help="Whether to compute the Burrows-Wheeler Tranform prior to compression and reverse complement (default 256 MB).")
+@click.option("-bM", "--bwte-mem", "bwteMem", type=int, default=256, help="BWT-Disk option: The amount of memory in MB for use in the bwt-disk executable.")
+@click.option("-bC", "--bwte-compress", "bwteCompress", type=click.Choice(['None', 'gzip', 'rle-range-encoding', 'dna5-symbol', 'lzma']), default='gzip', help="BWT-Disk Option: The compression to use when calling bwt-disk before compression, may require separate libraries if not using default.")
+@click.option("-l", "--log-type", type=click.Choice(["html", "md"]), help="The output format for the report.")
+@click.option("--no-show", default=False, is_flag=True, help="If mode is html, use this flag to prevent automatically opening the log in the browser.")
+def cli(fasta, directories, numThreads, compression, showProgress, saveCompression, output, reverse_complement, BWT, bwteMem, bwteCompress, log_type, no_show):
+    start_time = datetime.now()
+
     if saveCompression:
         saveCompression = Path(saveCompression)
     # Map bwte inputs to options for the bwte executabl
@@ -123,13 +125,14 @@ def cli(fasta, directories, numThreads, compression, showProgress, saveCompressi
                                            duration=datetime.now() - start_time,
                                            output_path=output.absolute())
 
-    if log_mode in ["html", "pdf"]:
+    if log_type == "html":
         rendered = markdown(rendered)
         rendered = jinja2.Template(rendered_html).render(body=rendered)
 
-    print(rendered, file=open(output.stem + "." + log_mode, "w"))
-    if not no_show and log_mode == "html":
-        webbrowser.open("file://" + str(output.parent.absolute()) + "/" + output.stem + "." + log_mode)
+    print(rendered, file=open(output.stem + "." + log_type, "w"))
+    if not no_show and log_type == "html":
+        webbrowser.open("file://" + str(output.parent.absolute()) + "/" + output.stem + "." + log_type)
+
 
 def tqdm_parallel_map(executor, fn, showProgress, *iterables, **kwargs):
     """
@@ -195,6 +198,16 @@ log = '''#snacc analysis
 * py-lz4framed: {{lz4framed_version}}
 * umap-learn: {{umap_version}}
 '''
+
+# Utility function
+def convert_html_to_pdf(sourceHtml, outputFilename):
+    # open output file for writing (truncated binary)
+    resultFile = open(outputFilename, "w+b")
+
+    # convert HTML to PDF
+    pisaStatus = pisa.CreatePDF(sourceHtml,      # the HTML to convert
+                                dest=resultFile) # file handle to recieve result
+    resultFile.close()
 
 
 if __name__ == "__main__":
