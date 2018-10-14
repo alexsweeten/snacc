@@ -4,7 +4,7 @@ import concurrent.futures
 import itertools
 from tqdm import tqdm
 import pandas as pd
-from pairwise_ncd import compressed_size, compute_distance
+from .pairwise_ncd import compressed_size, compute_distance
 
 from pathlib import Path
 
