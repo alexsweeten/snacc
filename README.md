@@ -1,5 +1,6 @@
 ![logo](https://github.com/SweetiePi/bioncd-hackseq/blob/master/logo/snacc-header.jpg)
-This repository was initated for the [hackseq18](https://www.hackseq.com) project titled "Alignment-free Pathogen Genomics", with development scheduled for October 12th - 14th, 2018.
+# snacc: Compare pathogen genomes without the alignment
+snacc is a pipeline that implements the normalized compression distance(NCD) specifically for biological data. The snacc pipeline primarily consists of 3 stages: compression, clustering, and visualization. The goal of this project is to provide a faster method of comparing large-scale pathogen genomes to conventional alignment-based methods such as BLAST by exploiting the inherent redundancies in the genetic code.
 
 ## Initial Description
 Sequence alignment has long been the de-facto method for determing similarity between two genomes. Algorithms which implement sequence alignment are abundant and widely used; the paper describing BLAST (Basic Local Alignment Search Tool algorithm) has over 70,000 citations, making it one of the most frequently cited tools in biology. However, in cases of low sequence homology, horizontal gene transfer, or lack of apriori information, as is common when dealing with pathogenic bacteria, alignment-based methods pose significant problems. New methods are required to analyze this data, and I hope to introduce the Normalized Compression Distance (NCD) as one such method.
