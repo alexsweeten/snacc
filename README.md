@@ -12,6 +12,7 @@ snacc is a pipeline that implements the normalized compression distance(NCD) spe
 
 
 ## Workflow
+<img src="https://github.com/SweetiePi/bioncd-hackseq/blob/master/logo/workflow-graphic.png" width="350">
 
 1) Compression
 * Input: Set of sequences (fasta/fastq files)
