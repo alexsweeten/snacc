@@ -2,9 +2,9 @@ import concurrent.futures
 import itertools
 import os
 import sys
+import webbrowser
 from datetime import datetime
 from pathlib import Path
-import webbrowser
 
 import click
 import jinja2
