@@ -2,6 +2,15 @@
 # snacc: Compress and compare pathogen genomes without sequence alignment
 snacc is a pipeline that implements the normalized compression distance(NCD) specifically for biological data. The workflow primarily consists of 3 stages: compression, clustering, and visualization. The goal of this project is to provide a faster method of comparing large-scale pathogen genomes to conventional alignment-based methods such as BLAST by exploiting the inherent redundancies of the genetic code.
 
+## Table of contents
+- [Workflow](#workflow)
+- [Installation and Dependencies](#installation-and-dependencies)
+- [Set up a virtual env (optional)](#Set-up-a-virtual-env-(optional))
+- [Install the dependencies](#install-the-dependencies)
+- [Usage](#usage)
+- [Examples](#examples)
+
+
 ## Workflow
 
 1) Compression
