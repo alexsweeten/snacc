@@ -1,12 +1,57 @@
+
 import bz2
 import gzip
 import lzma
 import os
 import sys
 import zlib
-
+import subprocess
 import lz4framed
 from Bio import SeqIO
+from pathlib import Path
+
+def runBwtDisk(filename, inputs, save_directory=None):
+	"""
+	read in fasta and bwte options to run bwt-disk with compression and filters
+
+		Args:
+			filename (pathlib.Path): A path object for the sequence's original fasta
+			inputs (dict): a dictionary of options to bwte executable
+
+		Retuns:
+			(file): The return statement. A binary file object of the BWT-Disk
+					transformed sequence thats compressed
+	"""
+	if type(filename) == tuple:
+		out_file = filename[0].stem + filename[1].name
+		seqs = extract_sequences(filename[0]) + extract_sequences(filename[1])
+		f = open(out_file,'w+')
+		f.write(seqs)
+		f.close()
+	else:
+		out_file = filename.absolute()
+	extensions = ['','.gz', '.rrc', '.atn', '.lzma']
+	basedir = os.path.abspath(os.path.dirname(__file__))
+	bwte_exec =  os.path.join(basedir,'../bin/bwt_disk/bwte')
+	cmd = [bwte_exec]
+	for key in inputs:
+		cmd += inputs[key]
+	subprocess.run(cmd + [out_file])
+
+	output = str(out_file) + ".bwt" + extensions[int(inputs['bwte-compress'][1])]
+	result = open(output, 'rb').read()
+	if type(filename) == tuple:
+		if save_directory:
+			subprocess.run(['mv','-t',save_directory,output, output + ".aux"])
+			subprocess.run(['rm',out_file])
+		else:
+			subprocess.run(['rm',output, out_file, output + ".aux"])
+	else:
+		if save_directory:
+			subprocess.run(['mv','-t',save_directory,output, output +".aux"])
+		else:
+			subprocess.run(['rm',output, output + ".aux"])
+	return result
 
 def bwt(s):
     """
@@ -35,7 +80,7 @@ def extract_sequences(filepath, reverse_complement=False, BWT=False):
     else:
         return seq
 
-def compressed_size(filename, algorithm, reverse_complement=False, save_directory=None, BWT=False):
+def compressed_size(filename, algorithm, reverse_complement=False, save_directory=None, BWT=False, bwte_inputs = {}):
     '''
 
     Args:
@@ -51,6 +96,7 @@ def compressed_size(filename, algorithm, reverse_complement=False, save_director
     # check if already compressed @TODO
     sequence = bytes(extract_sequences(filename, reverse_complement=reverse_complement, BWT=BWT), encoding="utf-8")
     extension = {
+        "bwt-disk": "",
         "lzma": ".lzma",
         "gzip": ".gz",
         "bzip2": ".bz2",
@@ -67,6 +113,8 @@ def compressed_size(filename, algorithm, reverse_complement=False, save_director
         compressed_seq = zlib.compress(sequence)
     elif algorithm == "lz4":
         compressed_seq = lz4framed.compress(sequence)
+    elif algorithm == 'bwt-disk':
+        compressed_seq = runBwtDisk(filename, bwte_inputs)
 
     if save_directory:
         if type(filename) == tuple:

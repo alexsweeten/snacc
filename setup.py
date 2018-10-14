@@ -8,8 +8,9 @@ import io
 import os
 import sys
 from shutil import rmtree
-
+import subprocess
 from setuptools import find_packages, setup, Command
+from distutils.command.install import install as _install
 
 
 version = {}
@@ -110,7 +111,7 @@ setup(
     # packages=find_packages(exclude=('tests',)),
     # If your package is a single module, use this instead of 'packages':
     packages=['snacc'],
-
+    package_data={'snacc': ['bin/bwt_disk/bwte']},
     entry_points={
         'console_scripts': ['snacc=snacc.cli:cli'],
     },
