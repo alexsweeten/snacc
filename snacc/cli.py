@@ -4,6 +4,7 @@ import os
 import sys
 from datetime import datetime
 from pathlib import Path
+import webbrowser
 
 import click
 import jinja2
@@ -29,19 +30,24 @@ from .version import __version__
 @click.option("-p", "--show-progress", "showProgress", default=True, type=bool, help="Whether to show a progress bar for computing compression distances.")
 @click.option("-r", "--reverse_complement", is_flag=True, default=False, help="Whether to use the reverse complement of the sequence.")
 @click.option("-b", "--burrows-wheeler", "BWT", is_flag=True, default=False, help="Whether to compute the Burrows-Wheeler Transform prior to compression and reverse complement.")
-@click.option("-l", "--log-mode", type=click.Choice(["html", "md"]), help="The output format for the report.")
-def cli(fasta, directories, numThreads, compression, showProgress, saveCompression, output, reverse_complement, BWT, log_mode):
+@click.option("-l", "--log-mode", default="html", type=click.Choice(["html", "md", "pdf"]), help="The output format for the report. Defaults to html.")
+@click.option("--no-show", default=False, is_flag=True, help="Don't show the report in the browser if log mode is set to html. Defaults to False.")
+def cli(fasta, directories, numThreads, compression, showProgress, saveCompression, output, reverse_complement, BWT, log_mode, no_show):
+    start_time = datetime.now()
     if saveCompression:
         saveCompression = Path(saveCompression)
+
+    output = Path(output) # make the output into a Path object
+
     # generate a list of absolute paths containing the files to be compared
     files = [Path(f) for f in fasta]
 
+    # get all the files in the passed directories
     for directory in directories:
-        for dirpath, _, filenames in os.walk(directory):
-            for f in filenames:
-                f = Path(os.path.join(dirpath, f))
-                if f.suffix.lower() in [".fasta", ".fna", ".fa", ".faa"]:
-                    files.append(f)
+        directory = Path(directory)
+        for f in directory.iterdir():
+            if f.suffix.lower() in [".fasta", ".fna", ".fa", ".faa"]:
+                files.append(f)
     files = list(set(files)) # remove any duplicates
 
     executor = concurrent.futures.ThreadPoolExecutor(max_workers=numThreads)
@@ -99,9 +105,17 @@ def cli(fasta, directories, numThreads, compression, showProgress, saveCompressi
                                            files=[str(_file.absolute()) for _file in files],
                                            bwt=BWT,
                                            rev_comp=reverse_complement,
-                                           table=df.to_html(index=False))
+                                           table=df.to_html(index=False),
+                                           duration=datetime.now() - start_time,
+                                           output_path=output.absolute())
 
-    print(rendered, file=open("test.md", "w"))
+    if log_mode in ["html", "pdf"]:
+        rendered = markdown(rendered)
+        rendered = jinja2.Template(rendered_html).render(body=rendered)
+
+    print(rendered, file=open(output.stem + "." + log_mode, "w"))
+    if not no_show and log_mode == "html":
+        webbrowser.open("file://" + str(output.parent.absolute()) + "/" + output.stem + "." + log_mode)
 
 def tqdm_parallel_map(executor, fn, showProgress, *iterables, **kwargs):
     """
@@ -121,27 +135,51 @@ def tqdm_parallel_map(executor, fn, showProgress, *iterables, **kwargs):
             yield f.result()
 
 
-log = '''# `snacc` Analysis
+rendered_html = '''
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <title>snacc analysis</title>
+  </head>
+  <body>
+  {{ body }}
+  </body>
+<style>
+body {
+    padding-left: 50px;
+    padding-top: 25px;
+}
+</style>
+</html>
+'''
+log = '''#snacc analysis
 * Analysis time: {{time}}
+* Analysis duration: {{duration}}
 * Compression method: {{method}}
 * Reverse complement: {{rev_comp}}
 * Burrows-Wheeler transform: {{bwt}}
+* Output filepath: {{output_path}}
 
-## Analyzed Files
+### Analyzed Files
 {% for _file in files -%}
 * {{_file}}
 {% endfor %}
 
-## Result
+### Distance Matrix
 {{table}}
 
-## Version Information
+### Version Information
 * Python: {{py_version}}
 * snacc: {{snacc_version}}
 * scikit-learn: {{sklearn_version}}
 * py-lz4framed: {{lz4framed_version}}
 * umap-learn: {{umap_version}}
-
 '''
 
 
