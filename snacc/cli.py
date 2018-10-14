@@ -17,7 +17,7 @@ from pathlib import Path
 @click.option("-c", "--compression", default="lzma", type=click.Choice(['lzma', 'gzip', 'bzip2', 'zlib', 'lz4', 'snappy']), help="The compression algorithm to use. Defaults to lzma.")
 @click.option("-p", "--show-progress", "showProgress", default=True, type=bool, help="Whether to show a progress bar for computing compression distances")
 @click.option("-r", "--reverse_complement", is_flag=True, default=False, help="Whether to use the reverse complement of the sequence")
-@click.option("-b", "--burrows-wheeler", "BWT", is_flag=True, default =False, help="Whether to compute the Burrows-Wheeler Tranform prior to compression and reverse complement")
+@click.option("-b", "--burrows-wheeler", "BWT", is_flag=True, default=False, help="Whether to compute the Burrows-Wheeler Tranform prior to compression and reverse complement")
 def cli(fasta, directories, numThreads, compression, showProgress, saveCompression, output, reverse_complement, BWT):
     if saveCompression:
         saveCompression = Path(saveCompression)
@@ -38,11 +38,11 @@ def cli(fasta, directories, numThreads, compression, showProgress, saveCompressi
     print("Compressing individual files...")
     compressed_sizes = tqdm_parallel_map(executor,
                                          lambda x: compressed_size(
-                                            filename=x,
-                                            algorithm=compression,
-                                            save_directory=saveCompression,
-                                            reverse_complement=reverse_complement,
-                                            BWT=BWT),
+                                             filename=x,
+                                             algorithm=compression,
+                                             save_directory=saveCompression,
+                                             reverse_complement=reverse_complement,
+                                             BWT=BWT),
                                          showProgress,
                                          files)
     compressed_dict = dict(compressed_sizes) # {PATH: compressed size}

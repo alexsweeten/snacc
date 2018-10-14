@@ -11,6 +11,11 @@ from shutil import rmtree
 
 from setuptools import find_packages, setup, Command
 
+
+version = {}
+with open("snacc/version.py") as fp:
+    exec(fp.read(), version)
+
 # Package meta-data.
 NAME = 'snacc'
 DESCRIPTION = 'Alignment free tool for similarity calculation between sequences.'
@@ -18,7 +23,7 @@ URL = 'https://github.com/SweetiePi/bioncd-hackseq'
 EMAIL = 'alex.sweeten@gmail.com'
 AUTHOR = 'Alex Sweeten et al.'
 REQUIRES_PYTHON = '>=3.4.0'
-VERSION = "0.0.1"
+VERSION = version['__version__']
 
 # What packages are required for this module to be executed?
 with open("requirements.txt", "r") as f:
