@@ -138,5 +138,47 @@ snacc\
 --save-compression [folder to store zipped files] \
 --show-progress False
 ```
- ## Output
- ![output](logo/output.png)
+
+## Output
+### snacc analysis
+* Analysis time: 2018-10-14 15:18:17.257619
+* Analysis duration: 0:00:26.383997
+* Compression method: lzma
+* Reverse complement: False
+* Burrows-Wheeler transform: False
+* Output filepath: /Users/BenjaminLee/Desktop/Python/Research/hackseq18/bioncd-hackseq/test.csv
+
+##### Analyzed Files
+* /Users/BenjaminLee/Desktop/Python/Research/hackseq18/bioncd-hackseq/test_dataset/mysteryGenome_1.fasta
+* /Users/BenjaminLee/Desktop/Python/Research/hackseq18/bioncd-hackseq/test_dataset/mysteryGenome_2.fasta
+
+
+##### Distance Matrix
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>file</th>
+      <th>mysteryGenome_1.fasta</th>
+      <th>mysteryGenome_2.fasta</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>mysteryGenome_1.fasta</td>
+      <td>0.000644</td>
+      <td>0.003542</td>
+    </tr>
+    <tr>
+      <td>mysteryGenome_2.fasta</td>
+      <td>0.003542</td>
+      <td>0.000641</td>
+    </tr>
+  </tbody>
+</table>
+
+##### Version Information
+* Python: 3.6.0 (v3.6.0:41df79263a11, Dec 22 2016, 17:23:13) [GCC 4.2.1 (Apple Inc. build 5666) (dot 3)]
+* snacc: 0.0.1
+* scikit-learn: 0.20.0
+* py-lz4framed: 0.12.0
+* umap-learn: 0.3.5
