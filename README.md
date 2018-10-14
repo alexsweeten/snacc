@@ -1,4 +1,7 @@
-# bioncd-hackseq
+# snacc
+
+![logo](logo/snacc.png)
+
 **BIO**logical implementation of the **N**ormalized **C**ompression **D**istance (name tentative to change). This repository was initated for the [hackseq18](https://www.hackseq.com) project titled "Alignment-free Pathogen Genomics", with development scheduled for October 12th - 14th, 2018.
 
 ## Initial Description
