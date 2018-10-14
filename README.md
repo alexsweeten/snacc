@@ -1,14 +1,17 @@
 ![logo](https://github.com/SweetiePi/bioncd-hackseq/blob/master/logo/snacc-header.jpg)
-# snacc: Compare pathogen genomes without sequence alignment
-snacc is a pipeline that implements the normalized compression distance(NCD) specifically for biological data. The pipeline primarily consists of 3 stages: compression, clustering, and visualization. The goal of this project is to provide a faster method of comparing large-scale pathogen genomes to conventional alignment-based methods such as BLAST by exploiting the inherent redundancies of the genetic code.
+# snacc: Compress and compare pathogen genomes without sequence alignment
+snacc is a pipeline that implements the normalized compression distance(NCD) specifically for biological data. The workflow primarily consists of 3 stages: compression, clustering, and visualization. The goal of this project is to provide a faster method of comparing large-scale pathogen genomes to conventional alignment-based methods such as BLAST by exploiting the inherent redundancies of the genetic code.
 
-## Initial Description
-Sequence alignment has long been the de-facto method for determing similarity between two genomes. Algorithms which implement sequence alignment are abundant and widely used; the paper describing BLAST (Basic Local Alignment Search Tool algorithm) has over 70,000 citations, making it one of the most frequently cited tools in biology. However, in cases of low sequence homology, horizontal gene transfer, or lack of apriori information, as is common when dealing with pathogenic bacteria, alignment-based methods pose significant problems. New methods are required to analyze this data, and I hope to introduce the Normalized Compression Distance (NCD) as one such method.
+## Table of contents
+- [Workflow](#workflow)
+- [Installation and Dependencies](#installation-and-dependencies)
+- [Set up a virtual env (optional)](#Set-up-a-virtual-env--optional)
+- [Install the dependencies](#install-the-dependencies)
+- [Usage](#usage)
+- [Examples](#examples)
 
-NCD is a parameter-free metric which utilizes compression algorithms in order to estimate similarity. These algorithms find and take advantage of redundancies in a given input signal in order to reduce the size required to encode that signal. Intuition says that the more similar two strings are, the more redundancies they will have, which will result in a better compression score. NCD has been used in many different ways, such as [classifying musical genres of mp3 files](https://homepages.cwi.nl/~paulv/papers/music.pdf), [scanning Android files for viruses](https://link.springer.com/article/10.1007/s11416-015-0260-0) and [natural language processing](http://www.aclweb.org/anthology/P10-2015). However, there are currently no existing tools which apply NCD towards biological datasets.
 
-## Project Goals
-Our goal is to develop BioNCD, a pipeline that implements the normalized compression distance specifically for biological data as input. BioNCD will take sequences as input, and output a sequence similairity network with NCD used as the similarity metric. This pipeline can be broken down into 3 stages:
+## Workflow
 
 1) Compression
 * Input: Set of sequences (fasta/fastq files)
@@ -22,10 +25,8 @@ Our goal is to develop BioNCD, a pipeline that implements the normalized compres
 * Input: Table of cluster assignments & distance matrix of NCD values
 * Output: Sequence similarity network
 
-I currently have a naive implementation of the compression stage, however it requires many optimizations. During development, we will benchmark each stage of the pipeline and compare the runtime and memory requirements to other similarity metrics. We will also apply our pipeline towards datasets of pathogenic bacteria & viruses. Finally, I would like to manage this pipeline into a conda package to make it easy for users to run on their own machines.
-
 ## Installation and Dependencies
-Dependencies are not yet finalized, and will be updated here. Most likely we will require:
+
 - [`python3`](https://python.org)
 - [`numpy`](https://numpy.org)
 - [`scipy`](https://scipy.org)
@@ -56,3 +57,17 @@ You can leave the virtualenv at any time with the command:
 To install the dependencies:
 
     pip install -e .
+    
+## Usage
+    $ snacc
+    -f --fastatype              :FASTA file containing sequence to compare
+    -d --directory              :Directory containing FASTA files to compare
+    -n --num-threads            :Number of Threads to use
+    -o --output                 :Location for the output CSV file
+    -s --save-compression       :(default=None) Save compressed sequence files to the specified directory
+    -c --compression            :(default="lzma") The compression algorithm to use. Choose from 'lzma', 'gzip', 'bzip2', 'zlib', 'lz4', and 'snappy'
+    -p --show-progress          :(default=True) Whether to show a progress bar for computing compression distances
+    -r --reverse_complement     :(default=False) Whether to use the reverse complement of the sequence
+    -b --burrows-wheeler        :(default=False) Whether to compute the Burrows-Wheeler Tranform prior to compression and reverse complement
+
+## Examples
