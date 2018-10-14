@@ -7,5 +7,5 @@ click
 py-lz4framed
 tqdm
 biopython
-snappy
+python-snappy
 umap-learn
