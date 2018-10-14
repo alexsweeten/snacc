@@ -32,7 +32,8 @@ def runBwtDisk(filename, inputs, save_directory=None):
 	else:
 		out_file = filename.absolute()
 	extensions = ['','.gz', '.rrc', '.atn', '.lzma']
-	bwte_exec = "./../bin/bwt_disk/bwte"
+	basedir = os.path.abspath(os.path.dirname(__file__))
+	bwte_exec = "." + os.path.join(basedir,'bwte')
 	cmd = [bwte_exec]
 	for key in inputs:
 		cmd += inputs[key]
@@ -42,16 +43,17 @@ def runBwtDisk(filename, inputs, save_directory=None):
 	result = open(output, 'rb').read()
 	if type(filename) == tuple:
 		if save_directory:
-			subprocess.run(['mv','-t',save_directory,output, "*.aux"])
+			subprocess.run(['mv','-t',save_directory,output, output + ".aux"])
 			subprocess.run(['rm',out_file])
 		else:
-			subprocess.run(['rm',output, "*.aux"])
+			subprocess.run(['rm',output, out_file, output + ".aux"])
 	else:
 		if save_directory:
-			subprocess.run(['mv','-t',save_directory,output, "*.aux"])
+			subprocess.run(['mv','-t',save_directory,output, output +".aux"])
 		else:
-			subprocess.run(['rm',output, "*.aux"])
-			
+			subprocess.run(['rm',output, output + ".aux"])
+	return result
+
 def bwt(s):
     """
     Code for Burrows-Wheeler Transformation. The code is adapted from Rosetta Code.

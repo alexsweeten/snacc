@@ -8,8 +8,9 @@ import io
 import os
 import sys
 from shutil import rmtree
-
+import subprocess
 from setuptools import find_packages, setup, Command
+from distutils.command.install import install as _install
 
 
 version = {}
@@ -95,6 +96,12 @@ class UploadCommand(Command):
 
         sys.exit()
 
+class install(_install):
+    def run(self):
+        subprocess.call(['make', 'clean', '-C', 'bin/bwt_disk'])
+        subprocess.call(['make', '-C', 'bin/bwt_disk'])
+        _install.run(self)
+
 
 # Where the magic happens:
 setup(
@@ -110,7 +117,7 @@ setup(
     # packages=find_packages(exclude=('tests',)),
     # If your package is a single module, use this instead of 'packages':
     packages=['snacc'],
-
+    package_data={'snacc': ['bin/bwt_disk/bwte']},
     entry_points={
         'console_scripts': ['snacc=snacc.cli:cli'],
     },
@@ -134,5 +141,6 @@ setup(
     # $ setup.py publish support.
     cmdclass={
         'upload': UploadCommand,
+        'install': install
     },
 )
