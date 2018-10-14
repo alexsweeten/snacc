@@ -25,7 +25,7 @@ from .version import __version__
 @click.option("-n", "--num-threads", "numThreads", type=int, default=None, help="Number of Threads to use (default 5 * number of cores).")
 @click.option("-o", "--output", type=click.Path(dir_okay=False, exists=False), help="The location for the output CSV file.")
 @click.option("-s", "--save-compression", "saveCompression", type=click.Path(dir_okay=True, file_okay=False, resolve_path=True), default=None, help="Save compressed sequence files to the specified directory.")
-@click.option("-c", "--compression", default="lzma", type=click.Choice(['lzma', 'gzip', 'bzip2', 'zlib', 'lz4', 'snappy', 'bwt-disk']), help="The compression algorithm to use. Defaults to lzma.")
+@click.option("-c", "--compression", default="lzma", type=click.Choice(['lzma', 'gzip', 'bzip2', 'zlib', 'lz4', 'bwt-disk']), help="The compression algorithm to use. Defaults to lzma.")
 @click.option("--show-progress/--no-show-progress", "showProgress", default=True, help="Whether to show a progress bar for computing compression distances.")
 @click.option("-r", "--reverse_complement", is_flag=True, default=False, help="Whether to use the reverse complement of the sequence.")
 @click.option("-b", "--burrows-wheeler", "BWT", is_flag=True, default=False, help="Whether to compute the Burrows-Wheeler Tranform prior to compression and reverse complement (default 256 MB).")
