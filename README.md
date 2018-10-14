@@ -72,3 +72,26 @@ To install the dependencies:
     -b --burrows-wheeler        :(default=False) Whether to compute the Burrows-Wheeler Tranform prior to compression and reverse complement
 
 ## Examples
+
+0) Before calling SNACC
+```
+source activate my_env
+```
+1) Most basic usage
+```
+python3 snacc -d [folder with sequences] -o [output name]
+```
+2) Intermediate: customize number of threads and compression algorithm
+```
+python3 snacc -d [folder with sequences] -o [output name] -n 24 -c gzip
+```
+3) Full control
+```
+python3 snacc \
+--directory [folder with sequences] \
+--output [output name] \
+--num-threads 24 \
+--compression zlib \
+--save-compression [folder to store zipped files] \
+--show-progress False
+```
