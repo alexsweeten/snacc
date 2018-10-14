@@ -31,7 +31,7 @@ from .version import __version__
 @click.option("-b", "--burrows-wheeler", "BWT", is_flag=True, default=False, help="Whether to compute the Burrows-Wheeler Tranform prior to compression and reverse complement (default 256 MB).")
 @click.option("-bM", "--bwte-mem", "bwteMem", type=int, default=256, help="BWT-Disk option: The amount of memory in MB for use in the bwt-disk executable.")
 @click.option("-bC", "--bwte-compress", "bwteCompress", type=click.Choice(['None', 'gzip', 'rle-range-encoding', 'dna5-symbol', 'lzma']), default='gzip', help="BWT-Disk Option: The compression to use when calling bwt-disk before compression, may require separate libraries if not using default.")
-@click.option("-l", "--log-type", default="html", type=click.Choice(["html", "md"]), help="The output format for the report.")
+@click.option("-l", "--log-type", default="html", type=click.Choice(["html", "md"]), help="The output format for the report. Defaults to html.")
 @click.option("--no-show", default=False, is_flag=True, help="If mode is html, use this flag to prevent automatically opening the log in the browser.")
 def cli(fasta, directories, numThreads, compression, showProgress, saveCompression, output, reverse_complement, BWT, bwteMem, bwteCompress, log_type, no_show):
     start_time = datetime.now()

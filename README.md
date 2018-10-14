@@ -69,7 +69,7 @@ Options:
   -s, --save-compression DIRECTORY
                                   Save compressed sequence files to the
                                   specified directory.
-  -c, --compression [lzma|gzip|bzip2|zlib|lz4|snappy|bwt-disk]
+  -c, --compression [lzma|gzip|bzip2|zlib|lz4|bwt-disk]
                                   The compression algorithm to use. Defaults
                                   to lzma.
   --show-progress / --no-show-progress
@@ -87,7 +87,8 @@ Options:
                                   calling bwt-disk before compression, may
                                   require separate libraries if not using
                                   default.
-  -l, --log-type [html|md]        The output format for the report.
+  -l, --log-type [html|md]        The output format for the report. Defaults
+                                  to html.
   --no-show                       If mode is html, use this flag to prevent
                                   automatically opening the log in the
                                   browser.
