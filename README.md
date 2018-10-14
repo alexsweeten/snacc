@@ -63,10 +63,10 @@ To install the dependencies:
     -f --fastatype              :FASTA file containing sequence to compare
     -d --directory              :Directory containing FASTA files to compare
     -n --num-threads            :Number of Threads to use
-    -o --output:                :Location for the output CSV file
+    -o --output                 :Location for the output CSV file
     -s --save-compression       :(default=None) Save compressed sequence files to the specified directory
     -c --compression            :(default="lzma") The compression algorithm to use. Choose from 'lzma', 'gzip', 'bzip2', 'zlib', 'lz4', and 'snappy'
-    -p --show-progress:         :(default=True) Whether to show a progress bar for computing compression distances
+    -p --show-progress          :(default=True) Whether to show a progress bar for computing compression distances
     -r --reverse_complement     :(default=False) Whether to use the reverse complement of the sequence
     -b --burrows-wheeler        :(default=False) Whether to compute the Burrows-Wheeler Tranform prior to compression and reverse complement
 
