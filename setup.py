@@ -96,12 +96,6 @@ class UploadCommand(Command):
 
         sys.exit()
 
-class install(_install):
-    def run(self):
-        subprocess.call(['make', 'clean', '-C', 'bin/bwt_disk'])
-        subprocess.call(['make', '-C', 'bin/bwt_disk'])
-        _install.run(self)
-
 
 # Where the magic happens:
 setup(
@@ -141,6 +135,5 @@ setup(
     # $ setup.py publish support.
     cmdclass={
         'upload': UploadCommand,
-        'install': install
     },
 )

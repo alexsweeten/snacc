@@ -33,7 +33,7 @@ def runBwtDisk(filename, inputs, save_directory=None):
 		out_file = filename.absolute()
 	extensions = ['','.gz', '.rrc', '.atn', '.lzma']
 	basedir = os.path.abspath(os.path.dirname(__file__))
-	bwte_exec = "." + os.path.join(basedir,'bwte')
+	bwte_exec =  os.path.join(basedir,'../bin/bwt_disk/bwte')
 	cmd = [bwte_exec]
 	for key in inputs:
 		cmd += inputs[key]
