@@ -1,6 +1,5 @@
 ![logo](https://github.com/SweetiePi/bioncd-hackseq/blob/master/logo/snacc-header.jpg)
-
-**BIO**logical implementation of the **N**ormalized **C**ompression **D**istance (name tentative to change). This repository was initated for the [hackseq18](https://www.hackseq.com) project titled "Alignment-free Pathogen Genomics", with development scheduled for October 12th - 14th, 2018.
+This repository was initated for the [hackseq18](https://www.hackseq.com) project titled "Alignment-free Pathogen Genomics", with development scheduled for October 12th - 14th, 2018.
 
 ## Initial Description
 Sequence alignment has long been the de-facto method for determing similarity between two genomes. Algorithms which implement sequence alignment are abundant and widely used; the paper describing BLAST (Basic Local Alignment Search Tool algorithm) has over 70,000 citations, making it one of the most frequently cited tools in biology. However, in cases of low sequence homology, horizontal gene transfer, or lack of apriori information, as is common when dealing with pathogenic bacteria, alignment-based methods pose significant problems. New methods are required to analyze this data, and I hope to introduce the Normalized Compression Distance (NCD) as one such method.
