@@ -21,21 +21,33 @@ from .version import __version__
 
 
 @click.command(context_settings=dict(help_option_names=['-h', '--help']))
-@click.option("-f", "--fasta", type=click.Path(dir_okay=False, exists=True, resolve_path=True), multiple=True, help="FASTA file containing sequence to compare.")
-@click.option("-d", "--directory", "directories", type=click.Path(dir_okay=True, file_okay=False, exists=True, resolve_path=True), multiple=True, help="Directory containing FASTA files to compare.")
-@click.option("-n", "--num-threads", "numThreads", type=int, default=None, help="Number of Threads to use (defaults to 5 * number of cores).")
-@click.option("-o", "--output", type=click.Path(dir_okay=False, exists=False), help="The location for the output CSV file.")
-@click.option("-s", "--save-compression", "saveCompression", type=click.Path(dir_okay=True, file_okay=False, resolve_path=True), default=None, help="Save compressed sequence files to the specified directory.")
-@click.option("-c", "--compression", default="lzma", type=click.Choice(['lzma', 'gzip', 'bzip2', 'zlib', 'lz4']), help="The compression algorithm to use. Defaults to lzma.")
-@click.option("-p", "--show-progress", "showProgress", default=True, type=bool, help="Whether to show a progress bar for computing compression distances.")
-@click.option("-r", "--reverse_complement", is_flag=True, default=False, help="Whether to use the reverse complement of the sequence.")
-@click.option("-b", "--burrows-wheeler", "BWT", is_flag=True, default=False, help="Whether to compute the Burrows-Wheeler Transform prior to compression and reverse complement.")
-@click.option("-l", "--log-mode", default="html", type=click.Choice(["html", "md", "pdf"]), help="The output format for the report. Defaults to html.")
-@click.option("--no-show", default=False, is_flag=True, help="Don't show the report in the browser if log mode is set to html. Defaults to False.")
-def cli(fasta, directories, numThreads, compression, showProgress, saveCompression, output, reverse_complement, BWT, log_mode, no_show):
-    start_time = datetime.now()
+@click.option("-f", "--fasta", type=click.Path(dir_okay=False, exists=True, resolve_path=True), multiple=True, help="FASTA file containing sequence to compare")
+@click.option("-d", "--directory", "directories", type=click.Path(dir_okay=True, file_okay=False, exists=True, resolve_path=True), multiple=True, help="Directory containing FASTA files to compare")
+@click.option("-n", "--num-threads", "numThreads", type=int, default=None, help="Number of Threads to use (default 5 * number of cores)")
+@click.option("-o", "--output", type=click.Path(dir_okay=False, exists=False), help="The location for the output CSV file")
+@click.option("-s", "--save-compression", "saveCompression", type=click.Path(dir_okay=True, file_okay=False, resolve_path=True), default=None, help="Save compressed sequence files to the specified directory")
+@click.option("-c", "--compression", default="lzma", type=click.Choice(['lzma', 'gzip', 'bzip2', 'zlib', 'lz4', 'snappy', 'bwt-disk']), help="The compression algorithm to use. Defaults to lzma.")
+@click.option("-p", "--show-progress", "showProgress", default=True, type=bool, help="Whether to show a progress bar for computing compression distances")
+@click.option("-r", "--reverse_complement", is_flag=True, default=False, help="Whether to use the reverse complement of the sequence")
+@click.option("-b", "--burrows-wheeler", "BWT", is_flag=True, default=False, help="Whether to compute the Burrows-Wheeler Tranform prior to compression and reverse complement (default 256 MB)")
+@click.option("-bM", "--bwte-mem", "bwteMem", type=int, default=256, help="BWT-Disk option: The amount of memory in MB for use in the bwt-disk executable")
+@click.option("-bC", "--bwte-compress", "bwteCompress", type=click.Choice(['None', 'gzip', 'rle-range-encoding', 'dna5-symbol', 'lzma']), default='gzip', help="BWT-Disk Option: The compression to use when calling bwt-disk before compression, may require separate libraries if not using default")
+@click.option("-l", "--log-mode", type=click.Choice(["html", "md"]), help="The output format for the report.")
+def cli(fasta, directories, numThreads, compression, showProgress, saveCompression, output, reverse_complement, BWT, bwteMem, bwteCompress, log_mode):
     if saveCompression:
         saveCompression = Path(saveCompression)
+    # Map bwte inputs to options for the bwte executabl
+    compressions = {
+        'None': 0,
+        'gzip': 1,
+        'rle-range-encoding': 2,
+        'dna5-symbol': 3,
+        'lzma': 4
+    }
+    bwte_inputs = {
+        'bwte-mem': ['-m', str(bwteMem)],
+        'bwte-compress': ['-b', str(compressions[bwteCompress])]
+    }
 
     output = Path(output) # make the output into a Path object
 
@@ -60,7 +72,8 @@ def cli(fasta, directories, numThreads, compression, showProgress, saveCompressi
                                              algorithm=compression,
                                              save_directory=saveCompression,
                                              reverse_complement=reverse_complement,
-                                             BWT=BWT),
+                                             BWT=BWT,
+                                             bwte_inputs=bwte_inputs),
                                          showProgress,
                                          files)
     compressed_dict = dict(compressed_sizes) # {PATH: compressed size}
@@ -73,7 +86,8 @@ def cli(fasta, directories, numThreads, compression, showProgress, saveCompressi
                                                    algorithm=compression,
                                                    save_directory=saveCompression,
                                                    reverse_complement=reverse_complement,
-                                                   BWT=BWT),
+                                                   BWT=BWT,
+                                                   bwte_inputs=bwte_inputs),
                                                showProgress,
                                                itertools.product(compressed_dict.keys(), repeat=2))
 

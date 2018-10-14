@@ -1,4 +1,4 @@
-![logo](https://github.com/SweetiePi/bioncd-hackseq/blob/master/logo/snacc-header.jpg)
+![logo](logo/snacc-header.jpg)
 # snacc: Compress and compare pathogen genomes without sequence alignment
 snacc is a pipeline that implements the normalized compression distance(NCD) specifically for biological data. The workflow primarily consists of 3 stages: compression, clustering, and visualization. The goal of this project is to provide a faster method of comparing large-scale pathogen genomes to conventional alignment-based methods such as BLAST by exploiting the inherent redundancies of the genetic code.
 
@@ -12,19 +12,7 @@ snacc is a pipeline that implements the normalized compression distance(NCD) spe
 
 
 ## Workflow
-<img src="https://github.com/SweetiePi/bioncd-hackseq/blob/master/logo/workflow-graphic.png" width="350">
-
-1) Compression
-* Input: Set of sequences (fasta/fastq files)
-* Output: Distance matrix of NCD values
-
-2) Clustering
-* Input: Distance matrix of NCD values
-* Output: Table of cluster assignments
-
-3) Visualization
-* Input: Table of cluster assignments & distance matrix of NCD values
-* Output: Sequence similarity network
+![workflow](logo/workflow-graphic.jpg)
 
 ## Installation and Dependencies
 
@@ -59,17 +47,44 @@ To install the dependencies:
 
     pip install -e .
     
+#### Optional: install BWT disk functionality
+To use snacc with the [BWT-Disk](https://people.unipmn.it/manzini/bwtdisk/) function you can run the following commands:
+```
+cd /path/to/bioncd-hackseq/bin/bwt_disk
+make clean
+make 
+```
+    
 ## Usage
-    $ snacc
-    -f --fastatype              :FASTA file containing sequence to compare
-    -d --directory              :Directory containing FASTA files to compare
-    -n --num-threads            :Number of Threads to use
-    -o --output                 :Location for the output CSV file
-    -s --save-compression       :(default=None) Save compressed sequence files to the specified directory
-    -c --compression            :(default="lzma") The compression algorithm to use. Choose from 'lzma', 'gzip', 'bzip2', 'zlib', 'lz4', and 'snappy'
-    -p --show-progress          :(default=True) Whether to show a progress bar for computing compression distances
-    -r --reverse_complement     :(default=False) Whether to use the reverse complement of the sequence
-    -b --burrows-wheeler        :(default=False) Whether to compute the Burrows-Wheeler Tranform prior to compression and reverse complement
+    Usage: snacc [OPTIONS]
+
+    Options:
+      -f, --fasta FILE                FASTA file containing sequence to compare
+      -d, --directory DIRECTORY       Directory containing FASTA files to compare
+      -n, --num-threads INTEGER       Number of Threads to use (default 5 * number
+                                      of cores)
+      -o, --output FILE               The location for the output CSV file
+      -s, --save-compression DIRECTORY
+                                      Save compressed sequence files to the
+                                      specified directory
+      -c, --compression [lzma|gzip|bzip2|zlib|lz4|snappy|bwt-disk]
+                                      The compression algorithm to use. Defaults
+                                      to lzma.
+      -p, --show-progress BOOLEAN     Whether to show a progress bar for computing
+                                      compression distances
+      -r, --reverse_complement        Whether to use the reverse complement of the
+                                      sequence
+      -b, --burrows-wheeler           Whether to compute the Burrows-Wheeler
+                                      Tranform prior to compression and reverse
+                                      complement (default 256 MB)
+      -bM, --bwte-mem INTEGER         BWT-Disk option: The amount of memory in MB
+                                      for use in the bwt-disk executable
+      -bC, --bwte-compress [None|gzip|rle-range-encoding|dna5-symbol|lzma]
+                                      BWT-Disk Option: The compression to use when
+                                      calling bwt-disk before compression, may
+                                      require separate libraries if not using
+                                      default
+      -h, --help                      Show this message and exit.
 
 ## Examples
 
@@ -92,6 +107,19 @@ snacc \
 --output [output name] \
 --num-threads 24 \
 --compression zlib \
+--save-compression [folder to store zipped files] \
+--show-progress False
+```
+
+### Using bwt-disk functionality
+The following command will run a burrows-wheeler transform in disk using the default amount of memory (256MB) and then compress using range encoding.
+```
+snacc\
+--directory [folder with sequences] \
+--output [output name] \
+--num-threads 24 \
+--compression bwt-disk \
+--bwte-compress rle-range-encoding
 --save-compression [folder to store zipped files] \
 --show-progress False
 ```
