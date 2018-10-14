@@ -5,7 +5,7 @@ snacc is a pipeline that implements the normalized compression distance(NCD) spe
 ## Table of contents
 - [Workflow](#workflow)
 - [Installation and Dependencies](#installation-and-dependencies)
-- [Set up a virtual env (optional)](#Set-up-a-virtual-env-optional)
+- [Set up a virtual env (optional)](#set-up-a-virtual-env-optional)
 - [Install the dependencies](#install-the-dependencies)
 - [Usage](#usage)
 - [Examples](#examples)
@@ -73,21 +73,21 @@ To install the dependencies:
 
 ## Examples
 
-0) Before calling SNACC
+0) Before calling snacc
 ```
 source activate my_env
 ```
 1) Most basic usage
 ```
-python3 snacc -d [folder with sequences] -o [output name]
+snacc -d [folder with sequences] -o [output name]
 ```
 2) Intermediate: customize number of threads and compression algorithm
 ```
-python3 snacc -d [folder with sequences] -o [output name] -n 24 -c gzip
+snacc -d [folder with sequences] -o [output name] -n 24 -c gzip
 ```
 3) Full control
 ```
-python3 snacc \
+snacc \
 --directory [folder with sequences] \
 --output [output name] \
 --num-threads 24 \
