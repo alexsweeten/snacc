@@ -3,10 +3,6 @@ import lzma
 import lz4framed
 import bz2
 import zlib
-import getopt
-from sklearn.cluster import AgglomerativeClustering
-import sys
-import argparse
 import os
 import bz2
 import gzip
