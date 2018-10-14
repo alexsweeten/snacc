@@ -17,7 +17,7 @@ from pathlib import Path
 @click.option("-c", "--compression", default="lzma", type=click.Choice(['lzma', 'gzip', 'bzip2', 'zlib', 'lz4', 'snappy']), help="The compression algorithm to use. Defaults to lzma.")
 @click.option("-p", "--show-progress", "showProgress", default=True, type=bool, help="Whether to show a progress bar for computing compression distances")
 @click.option("-r", "--reverse_complement", is_flag=True, default=False, help="Whether to use the reverse complement of the sequence")
-@click.opyion("-b", "--burrows-wheeler", "BWT", is_flag=True, default =False, help="Whether to compute the Burrows-Wheeler Tranform prior to compression and reverse complement")
+@click.option("-b", "--burrows-wheeler", "BWT", is_flag=True, default =False, help="Whether to compute the Burrows-Wheeler Tranform prior to compression and reverse complement")
 def cli(fasta, directories, numThreads, compression, showProgress, saveCompression, output, reverse_complement, BWT):
     saveCompression = Path(saveCompression)
     # generate a list of absolute paths containing the files to be compared
