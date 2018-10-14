@@ -73,7 +73,11 @@ def compressed_size(filename, algorithm, reverse_complement=False, save_director
         compressed_seq = snappy.compress(sequence)
 
     if save_directory:
-        with open(os.path.join(save_directory.absolute(), filename.name + extension[algorithm]), 'wb') as f:
+        if type(filename) == tuple:
+            out_file = filename[0].stem + filename[1].name
+        else:
+            out_file = filename.name
+        with open(os.path.join(save_directory.absolute(), out_file + extension[algorithm]), 'wb') as f:
             f.write(compressed_seq)
 
     return (filename, sys.getsizeof(compressed_seq))
