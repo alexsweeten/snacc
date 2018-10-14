@@ -24,7 +24,7 @@ def bwt(s):
     return "".join(last_column)
 
 
-def extract_sequences(filepath, reverse_complement=False):
+def extract_sequences(filepath, reverse_complement=False, BWT=False):
     if type(filepath) == tuple:
         return extract_sequences(filepath[0]) + extract_sequences(filepath[1])
     seq = ""
@@ -35,9 +35,12 @@ def extract_sequences(filepath, reverse_complement=False):
             seq += str(seq_record.seq)
     if not seq:
         raise ValueError(f"No sequence extracted. Ensure that file {filepath.absolute()} contains a proper FASTA definition line (i.e. a line that starts with '>sequence_name').")
-    return seq
+    if BWT:
+        return bwt(seq)
+    else:
+        return seq
 
-def compressed_size(filename, algorithm, reverse_complement=False, save_directory=None):
+def compressed_size(filename, algorithm, reverse_complement=False, save_directory=None, BWT=False):
     '''
 
     Args:
@@ -51,7 +54,7 @@ def compressed_size(filename, algorithm, reverse_complement=False, save_director
     '''
 
     # check if already compressed @TODO
-    sequence = bytes(extract_sequences(filename, reverse_complement=reverse_complement), encoding="utf-8")
+    sequence = bytes(extract_sequences(filename, reverse_complement=reverse_complement, BWT=False), encoding="utf-8")
     extension = {
         "lzma": ".lzma",
         "gzip": ".gz",
