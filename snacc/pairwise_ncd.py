@@ -1,12 +1,11 @@
-import sys
-import lzma
-import lz4framed
-import bz2
-import zlib
-import os
-import subprocess
+
 import bz2
 import gzip
+import lzma
+import os
+import sys
+import zlib
+import subprocess
 import lz4framed
 from Bio import SeqIO
 from pathlib import Path

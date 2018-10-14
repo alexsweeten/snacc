@@ -1,8 +1,18 @@
-![logo](https://github.com/SweetiePi/bioncd-hackseq/blob/master/logo/snacc-header.jpg)
+![logo](logo/snacc-header.jpg)
 # snacc: Compress and compare pathogen genomes without sequence alignment
 snacc is a pipeline that implements the normalized compression distance(NCD) specifically for biological data. The workflow primarily consists of 3 stages: compression, clustering, and visualization. The goal of this project is to provide a faster method of comparing large-scale pathogen genomes to conventional alignment-based methods such as BLAST by exploiting the inherent redundancies of the genetic code.
 
+## Table of contents
+- [Workflow](#workflow)
+- [Installation and Dependencies](#installation-and-dependencies)
+- [Set up a virtual env (optional)](#set-up-a-virtual-env-optional)
+- [Install the dependencies](#install-the-dependencies)
+- [Usage](#usage)
+- [Examples](#examples)
+
+
 ## Workflow
+<img src="logo/workflow-graphic.png" width="350">
 
 1) Compression
 * Input: Set of sequences (fasta/fastq files)
@@ -54,11 +64,34 @@ To install the dependencies:
     -f --fastatype              :FASTA file containing sequence to compare
     -d --directory              :Directory containing FASTA files to compare
     -n --num-threads            :Number of Threads to use
-    -o --output:                :Location for the output CSV file
+    -o --output                 :Location for the output CSV file
     -s --save-compression       :(default=None) Save compressed sequence files to the specified directory
     -c --compression            :(default="lzma") The compression algorithm to use. Choose from 'lzma', 'gzip', 'bzip2', 'zlib', 'lz4', and 'snappy'
-    -p --show-progress:         :(default=True) Whether to show a progress bar for computing compression distances
+    -p --show-progress          :(default=True) Whether to show a progress bar for computing compression distances
     -r --reverse_complement     :(default=False) Whether to use the reverse complement of the sequence
     -b --burrows-wheeler        :(default=False) Whether to compute the Burrows-Wheeler Tranform prior to compression and reverse complement
 
 ## Examples
+
+0) Before calling snacc
+```
+source activate my_env
+```
+1) Most basic usage
+```
+snacc -d [folder with sequences] -o [output name]
+```
+2) Intermediate: customize number of threads and compression algorithm
+```
+snacc -d [folder with sequences] -o [output name] -n 24 -c gzip
+```
+3) Full control
+```
+snacc \
+--directory [folder with sequences] \
+--output [output name] \
+--num-threads 24 \
+--compression zlib \
+--save-compression [folder to store zipped files] \
+--show-progress False
+```

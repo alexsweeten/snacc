@@ -1,12 +1,23 @@
-import click
-import os
 import concurrent.futures
 import itertools
-from tqdm import tqdm
-import pandas as pd
-from .pairwise_ncd import compressed_size, compute_distance
-
+import os
+import sys
+from datetime import datetime
 from pathlib import Path
+
+import click
+import jinja2
+import lz4framed
+import pandas as pd
+import sklearn
+import umap
+from markdown import markdown
+from tqdm import tqdm
+from xhtml2pdf import pisa
+
+from .pairwise_ncd import compressed_size, compute_distance
+from .version import __version__
+
 
 @click.command(context_settings=dict(help_option_names=['-h', '--help']))
 @click.option("-f", "--fasta", type=click.Path(dir_okay=False, exists=True, resolve_path=True), multiple=True, help="FASTA file containing sequence to compare")
@@ -20,7 +31,8 @@ from pathlib import Path
 @click.option("-b", "--burrows-wheeler", "BWT", is_flag=True, default=False, help="Whether to compute the Burrows-Wheeler Tranform prior to compression and reverse complement (default 256 MB)")
 @click.option("-bM","--bwte-mem", "bwteMem", type=int,default=256, help="BWT-Disk option: The amount of memory in MB for use in the bwt-disk executable")
 @click.option("-bC","--bwte-compress", "bwteCompress", type=click.Choice(['None', 'gzip', 'rle-range-encoding','dna5-symbol', 'lzma']), default='gzip', help="BWT-Disk Option: The compression to use when calling bwt-disk before compression, may require separate libraries if not using default")
-def cli(fasta, directories, numThreads, compression, showProgress, saveCompression, output, reverse_complement, BWT, bwteMem, bwteCompress):
+@click.option("-l", "--log-mode", type=click.Choice(["html", "md"]), help="The output format for the report.")
+def cli(fasta, directories, numThreads, compression, showProgress, saveCompression, output, reverse_complement, BWT, bwteMem, bwteCompress, log_mode):
     if saveCompression:
         saveCompression = Path(saveCompression)
     # Map bwte inputs to options for the bwte executabl
@@ -87,8 +99,25 @@ def cli(fasta, directories, numThreads, compression, showProgress, saveCompressi
     distances = list(distances.items())
     distances = [(distance[0][0], distance[0][1], distance[1]) for distance in distances]
     df = pd.DataFrame(distances, columns=["file", "file2", "ncd"])#.to_csv("out.csv", index=False)
-    df.pivot(index='file', columns='file2', values='ncd').to_csv(output)
+    df = df.pivot(index='file', columns='file2', values='ncd')
+    df.to_csv(output)
+    df = pd.read_csv(output)
+    df.columns = list(map(lambda x: Path(x).name, df.columns))
+    df.file = df.file.apply(lambda x: Path(x).name)
 
+    rendered = jinja2.Template(log).render(time=datetime.now(),
+                                           method=compression,
+                                           py_version=str(sys.version.replace("\n", "")),
+                                           snacc_version=__version__,
+                                           umap_version=umap.__version__,
+                                           sklearn_version=sklearn.__version__,
+                                           lz4framed_version=lz4framed.__version__,
+                                           files=[str(_file.absolute()) for _file in files],
+                                           bwt=BWT,
+                                           rev_comp=reverse_complement,
+                                           table=df.to_html(index=False))
+
+    print(rendered, file=open("test.md", "w"))
 
 def tqdm_parallel_map(executor, fn, showProgress, *iterables, **kwargs):
     """
@@ -106,6 +135,30 @@ def tqdm_parallel_map(executor, fn, showProgress, *iterables, **kwargs):
     else:
         for f in concurrent.futures.as_completed(futures_list):
             yield f.result()
+
+
+log = '''# `snacc` Analysis
+* Analysis time: {{time}}
+* Compression method: {{method}}
+* Reverse complement: {{rev_comp}}
+* Burrows-Wheeler transform: {{bwt}}
+
+## Analyzed Files
+{% for _file in files -%}
+* {{_file}}
+{% endfor %}
+
+## Result
+{{table}}
+
+## Version Information
+* Python: {{py_version}}
+* snacc: {{snacc_version}}
+* scikit-learn: {{sklearn_version}}
+* py-lz4framed: {{lz4framed_version}}
+* umap-learn: {{umap_version}}
+
+'''
 
 
 if __name__ == "__main__":
