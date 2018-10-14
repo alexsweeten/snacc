@@ -14,18 +14,6 @@ snacc is a pipeline that implements the normalized compression distance(NCD) spe
 ## Workflow
 ![workflow](logo/workflow-graphic.jpg)
 
-1) Compression
-* Input: Set of sequences (fasta/fastq files)
-* Output: Distance matrix of NCD values
-
-2) Clustering
-* Input: Distance matrix of NCD values
-* Output: Table of cluster assignments
-
-3) Visualization
-* Input: Table of cluster assignments & distance matrix of NCD values
-* Output: Sequence similarity network
-
 ## Installation and Dependencies
 
 - [`python3`](https://python.org)
