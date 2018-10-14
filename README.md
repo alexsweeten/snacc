@@ -23,6 +23,12 @@ snacc is a pipeline that implements the normalized compression distance(NCD) spe
 - [`matplotlib`](https://matplotlib.org)
 - [`sklearn`](http://scikit-learn.org/stable/)
 - [`py-lz4framed`](https://github.com/Iotic-Labs/py-lz4framed)
+- [`click`](https://click.palletsprojects.com/en/7.x/)
+- [`tqdm`](https://pypi.org/project/tqdm/)
+- [`biopython`](https://biopython.org/)
+- [`umap-learn`](https://github.com/lmcinnes/umap)
+- [`jinja2`](http://jinja.pocoo.org/docs/2.10/)
+- [`markdown`](https://github.com/Python-Markdown/markdown)
 
 ### Set up a virtual env (optional)
 To install virtualenv use the following command in your terminal:
@@ -132,3 +138,5 @@ snacc\
 --save-compression [folder to store zipped files] \
 --show-progress False
 ```
+ ## Output
+ ![output](logo/output.png)
