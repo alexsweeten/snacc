@@ -54,4 +54,4 @@ You can leave the virtualenv at any time with the command:
 
 To install the dependencies:
 
-    pip install -r requirements.txt
+    pip install -e .
