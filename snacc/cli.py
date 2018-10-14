@@ -121,7 +121,7 @@ def cli(fasta, directories, numThreads, compression, showProgress, saveCompressi
                                            files=[str(_file.absolute()) for _file in files],
                                            bwt=BWT,
                                            rev_comp=reverse_complement,
-                                           table=df.to_html(index=False),
+                                           table=df.to_html(index=False, border=0),
                                            duration=datetime.now() - start_time,
                                            output_path=output.absolute())
 
@@ -198,16 +198,6 @@ log = '''#snacc analysis
 * py-lz4framed: {{lz4framed_version}}
 * umap-learn: {{umap_version}}
 '''
-
-# Utility function
-def convert_html_to_pdf(sourceHtml, outputFilename):
-    # open output file for writing (truncated binary)
-    resultFile = open(outputFilename, "w+b")
-
-    # convert HTML to PDF
-    pisaStatus = pisa.CreatePDF(sourceHtml,      # the HTML to convert
-                                dest=resultFile) # file handle to recieve result
-    resultFile.close()
 
 
 if __name__ == "__main__":
