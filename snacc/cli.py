@@ -18,7 +18,7 @@ from pathlib import Path
 @click.option("-p", "--show-progress", "showProgress", default=True, type=bool, help="Whether to show a progress bar for computing compression distances")
 @click.option("-r", "--reverse_complement", is_flag=True, default=False, help="Whether to use the reverse complement of the sequence")
 def cli(fasta, directories, numThreads, compression, showProgress, saveCompression, output, reverse_complement):
-
+    saveCompression = Path(saveCompression)
     # generate a list of absolute paths containing the files to be compared
     files = [Path(f) for f in fasta]
 
