@@ -1,21 +1,23 @@
-import click
-import os
 import concurrent.futures
 import itertools
-from tqdm import tqdm
-import pandas as pd
-import jinja2
-from pathlib import Path
+import os
+import sys
 from datetime import datetime
+from pathlib import Path
+
+import click
+import jinja2
+import lz4framed
+import pandas as pd
+import sklearn
+import umap
+from markdown import markdown
+from tqdm import tqdm
+from xhtml2pdf import pisa
 
 from .pairwise_ncd import compressed_size, compute_distance
-
-# version information
 from .version import __version__
-import sys
-import sklearn
-import lz4framed
-import umap
+
 
 @click.command(context_settings=dict(help_option_names=['-h', '--help']))
 @click.option("-f", "--fasta", type=click.Path(dir_okay=False, exists=True, resolve_path=True), multiple=True, help="FASTA file containing sequence to compare.")

@@ -1,11 +1,10 @@
-import sys
-import lzma
-import lz4framed
-import bz2
-import zlib
-import os
 import bz2
 import gzip
+import lzma
+import os
+import sys
+import zlib
+
 import lz4framed
 from Bio import SeqIO
 
