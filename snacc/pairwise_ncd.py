@@ -10,7 +10,6 @@ import argparse
 import os
 import bz2
 import gzip
-import snappy
 import lz4framed
 from Bio import SeqIO
 
@@ -73,8 +72,6 @@ def compressed_size(filename, algorithm, reverse_complement=False, save_director
         compressed_seq = zlib.compress(sequence)
     elif algorithm == "lz4":
         compressed_seq = lz4framed.compress(sequence)
-    elif algorithm == 'snappy':
-        compressed_seq = snappy.compress(sequence)
 
     if save_directory:
         if type(filename) == tuple:
