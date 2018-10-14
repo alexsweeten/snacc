@@ -56,35 +56,35 @@ make
 ```
     
 ## Usage
-Usage: snacc [OPTIONS]
+    Usage: snacc [OPTIONS]
 
-Options:
-  -f, --fasta FILE                FASTA file containing sequence to compare
-  -d, --directory DIRECTORY       Directory containing FASTA files to compare
-  -n, --num-threads INTEGER       Number of Threads to use (default 5 * number
-                                  of cores)
-  -o, --output FILE               The location for the output CSV file
-  -s, --save-compression DIRECTORY
-                                  Save compressed sequence files to the
-                                  specified directory
-  -c, --compression [lzma|gzip|bzip2|zlib|lz4|snappy|bwt-disk]
-                                  The compression algorithm to use. Defaults
-                                  to lzma.
-  -p, --show-progress BOOLEAN     Whether to show a progress bar for computing
-                                  compression distances
-  -r, --reverse_complement        Whether to use the reverse complement of the
-                                  sequence
-  -b, --burrows-wheeler           Whether to compute the Burrows-Wheeler
-                                  Tranform prior to compression and reverse
-                                  complement (default 256 MB)
-  -bM, --bwte-mem INTEGER         BWT-Disk option: The amount of memory in MB
-                                  for use in the bwt-disk executable
-  -bC, --bwte-compress [None|gzip|rle-range-encoding|dna5-symbol|lzma]
-                                  BWT-Disk Option: The compression to use when
-                                  calling bwt-disk before compression, may
-                                  require separate libraries if not using
-                                  default
-  -h, --help                      Show this message and exit.
+    Options:
+      -f, --fasta FILE                FASTA file containing sequence to compare
+      -d, --directory DIRECTORY       Directory containing FASTA files to compare
+      -n, --num-threads INTEGER       Number of Threads to use (default 5 * number
+                                      of cores)
+      -o, --output FILE               The location for the output CSV file
+      -s, --save-compression DIRECTORY
+                                      Save compressed sequence files to the
+                                      specified directory
+      -c, --compression [lzma|gzip|bzip2|zlib|lz4|snappy|bwt-disk]
+                                      The compression algorithm to use. Defaults
+                                      to lzma.
+      -p, --show-progress BOOLEAN     Whether to show a progress bar for computing
+                                      compression distances
+      -r, --reverse_complement        Whether to use the reverse complement of the
+                                      sequence
+      -b, --burrows-wheeler           Whether to compute the Burrows-Wheeler
+                                      Tranform prior to compression and reverse
+                                      complement (default 256 MB)
+      -bM, --bwte-mem INTEGER         BWT-Disk option: The amount of memory in MB
+                                      for use in the bwt-disk executable
+      -bC, --bwte-compress [None|gzip|rle-range-encoding|dna5-symbol|lzma]
+                                      BWT-Disk Option: The compression to use when
+                                      calling bwt-disk before compression, may
+                                      require separate libraries if not using
+                                      default
+      -h, --help                      Show this message and exit.
 
 ## Examples
 
