@@ -1,4 +1,5 @@
 # snacc
+> sequence non alignment compression comparison
 
 ![logo](https://github.com/SweetiePi/bioncd-hackseq/raw/master/logo/Snacc.png)
 
