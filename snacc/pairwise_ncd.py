@@ -50,7 +50,7 @@ def compressed_size(filename, algorithm, reverse_complement=False, save_director
     '''
 
     # check if already compressed @TODO
-    sequence = bytes(extract_sequences(filename, reverse_complement=reverse_complement, BWT=False), encoding="utf-8")
+    sequence = bytes(extract_sequences(filename, reverse_complement=reverse_complement, BWT=BWT), encoding="utf-8")
     extension = {
         "lzma": ".lzma",
         "gzip": ".gz",
