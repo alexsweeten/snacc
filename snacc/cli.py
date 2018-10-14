@@ -19,7 +19,8 @@ from pathlib import Path
 @click.option("-r", "--reverse_complement", is_flag=True, default=False, help="Whether to use the reverse complement of the sequence")
 @click.option("-b", "--burrows-wheeler", "BWT", is_flag=True, default =False, help="Whether to compute the Burrows-Wheeler Tranform prior to compression and reverse complement")
 def cli(fasta, directories, numThreads, compression, showProgress, saveCompression, output, reverse_complement, BWT):
-    saveCompression = Path(saveCompression)
+    if saveCompression:
+        saveCompression = Path(saveCompression)
     # generate a list of absolute paths containing the files to be compared
     files = [Path(f) for f in fasta]
 
