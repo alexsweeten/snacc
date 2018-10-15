@@ -121,7 +121,7 @@ def cli(fasta, directories, numThreads, compression, showProgress, saveCompressi
                                            files=[str(_file.absolute()) for _file in files],
                                            bwt=BWT,
                                            rev_comp=reverse_complement,
-                                           table=df.to_html(index=False, border=0),
+                                           table=df.to_html(index=False),
                                            duration=datetime.now() - start_time,
                                            output_path=output.absolute())
 
