@@ -32,13 +32,13 @@ from .version import __version__
 @click.option("-bM", "--bwte-mem", "bwteMem", type=int, default=256, help="BWT-Disk option: The amount of memory in MB for use in the bwt-disk executable.")
 @click.option("-bC", "--bwte-compress", "bwteCompress", type=click.Choice(['None', 'gzip', 'rle-range-encoding', 'dna5-symbol', 'lzma']), default='gzip', help="BWT-Disk Option: The compression to use when calling bwt-disk before compression, may require separate libraries if not using default.")
 @click.option("-l", "--log-type", default="html", type=click.Choice(["html", "md"]), help="The output format for the report. Defaults to html.")
-@click.option("--no-show", default=False, is_flag=True, help="If log type is html, use this flag to prevent automatically opening the log in the browser.")
-def cli(fasta, directories, numThreads, compression, showProgress, saveCompression, output, reverse_complement, BWT, bwteMem, bwteCompress, log_type, no_show):
+@click.option("--show-log/--no-show-log", default=True, help="Whether to automatically open the log in the browser if log type is html. Defaults to True.")
+def cli(fasta, directories, numThreads, compression, showProgress, saveCompression, output, reverse_complement, BWT, bwteMem, bwteCompress, log_type, show_log):
     start_time = datetime.now()
 
     if saveCompression:
         saveCompression = Path(saveCompression)
-    # Map bwte inputs to options for the bwte executabl
+    # Map bwte inputs to options for the bwte executable
     compressions = {
         'None': 0,
         'gzip': 1,
@@ -67,7 +67,7 @@ def cli(fasta, directories, numThreads, compression, showProgress, saveCompressi
     executor = concurrent.futures.ThreadPoolExecutor(max_workers=numThreads)
 
     #compute compressed sizes of individual sequences
-    print("Compressing individual files...")
+    click.secho("Compressing individual files...", fg="green")
     compressed_sizes = tqdm_parallel_map(executor,
                                          lambda x: compressed_size(
                                              filename=x,
@@ -81,7 +81,7 @@ def cli(fasta, directories, numThreads, compression, showProgress, saveCompressi
     compressed_dict = dict(compressed_sizes) # {PATH: compressed size}
 
     # compute compressed sizes of all ordered pairs of sequences
-    print("Compressing pairs...")
+    click.secho("Compressing pairs...", fg="green")
     compressed_pairs_sizes = tqdm_parallel_map(executor,
                                                lambda x: compressed_size(
                                                    filename=x,
@@ -130,9 +130,8 @@ def cli(fasta, directories, numThreads, compression, showProgress, saveCompressi
         rendered = jinja2.Template(rendered_html).render(body=rendered)
 
     print(rendered, file=open(output.stem + "." + log_type, "w"))
-    if not no_show and log_type == "html":
+    if show_log and log_type == "html":
         webbrowser.open("file://" + str(output.parent.absolute()) + "/" + output.stem + "." + log_type)
-
 
 def tqdm_parallel_map(executor, fn, showProgress, *iterables, **kwargs):
     """
