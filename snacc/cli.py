@@ -62,7 +62,7 @@ def cli(fasta, directories, numThreads, compression, showProgress, saveCompressi
         for f in directory.iterdir():
             if f.suffix.lower() in [".fasta", ".fna", ".fa", ".faa"]:
                 files.append(f)
-    files = list(set(files)) # remove any duplicates
+    files = sorted(list(set(files)), key=lambda x: str(x.absolute())) # remove any duplicates and sort for cleaner log output
 
     executor = concurrent.futures.ThreadPoolExecutor(max_workers=numThreads)
 
