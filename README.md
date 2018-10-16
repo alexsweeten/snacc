@@ -1,4 +1,4 @@
-![logo](logo/snacc-header.jpg)
+![logo](https://github.com/SweetiePi/bioncd-hackseq/blob/master/logo/snacc-header.jpg)
 # snacc: Compress and compare pathogen genomes without sequence alignment
 snacc is a pipeline that implements the normalized compression distance(NCD) specifically for biological data. The workflow primarily consists of 3 stages: compression, clustering, and visualization. The goal of this project is to provide a faster method of comparing large-scale pathogen genomes to conventional alignment-based methods such as BLAST by exploiting the inherent redundancies of the genetic code.
 
@@ -12,7 +12,7 @@ snacc is a pipeline that implements the normalized compression distance(NCD) spe
 
 
 ## Workflow
-![workflow](logo/workflow-graphic.jpg)
+![workflow](https://github.com/SweetiePi/bioncd-hackseq/blob/master/logo/workflow-graphic.jpg)
 
 ## Installation and Dependencies
 
@@ -183,4 +183,4 @@ snacc\
 * py-lz4framed: 0.12.0
 * umap-learn: 0.3.5
 
-![results](logo/output2.png)
+![results](https://github.com/SweetiePi/bioncd-hackseq/blob/master/logo/output2.png)
