@@ -32,8 +32,8 @@ def runBwtDisk(seq, inputs, extension):
     with tempfile.NamedTemporaryFile(mode='w+') as f:
         f.write(seq)
         subprocess.run(cmd + [f.name])
-        result = f.read()
-        toRemove = [f.name + extension, f.name + extension + ".aux"]
+        result = open(f.name + extension, "rb").read()
+    toRemove = [f.name + extension, f.name + extension + ".aux"]
     subprocess.run(["rm"] + toRemove)
     return result
 
@@ -49,6 +49,7 @@ def extract_sequences(filepath, reverse_complement=False, BWT=False):
             seq += str(seq_record.seq)
     if not seq:
         raise ValueError(f"No sequence extracted. Ensure that file {filepath.absolute()} contains a proper FASTA definition line (i.e. a line that starts with '>sequence_name').")
+    return seq
 
 
 def compressed_size(filename, algorithm, reverse_complement=False, save_directory=None, BWT=False, bwte_inputs = {}):
@@ -74,15 +75,16 @@ def compressed_size(filename, algorithm, reverse_complement=False, save_director
         "bwt-disk-rle-range": ".bwt.rrc",
         "bwt-disk-dna5-symbol": ".bwt.atn"
     }
-    file_ext = extension["algorithm"]
+    file_ext = extension[algorithm]
 
     if BWT:
         if "bwt" not in algorithm:
-            sequence = runBwtDisk(sequence,bwte_inputs)
             file_ext = ".bwt" + file_ext
+            sequence = runBwtDisk(sequence,bwte_inputs, ".bwt")
+    else:
+        if "bwt" not in algorithm:
+            sequence = bytes(sequence, encoding = "utf-8")
 
-    sequence = bytes(sequence, encoding = "utf-8")
-    
     if algorithm == "lzma":
         compressed_seq = lzma.compress(sequence)
     elif algorithm == "gzip":
