@@ -20,10 +20,11 @@ from .version import __version__
 
 
 @click.command(context_settings=dict(help_option_names=['-h', '--help']))
+@click.argument("sequences", type=click.Path(exists=True, resolve_path=True), nargs=-1)
 @click.option("-f", "--fasta", type=click.Path(dir_okay=False, exists=True, resolve_path=True), multiple=True, help="FASTA file containing sequence to compare.")
 @click.option("-d", "--directory", "directories", type=click.Path(dir_okay=True, file_okay=False, exists=True, resolve_path=True), multiple=True, help="Directory containing FASTA files to compare.")
 @click.option("-n", "--num-threads", "numThreads", type=int, default=None, help="Number of Threads to use (default 5 * number of cores).")
-@click.option("-o", "--output", type=click.Path(dir_okay=False, exists=False), help="The location for the output CSV file.")
+@click.option("-o", "--output", type=click.Path(dir_okay=False, exists=False), help="The location for the output CSV file.", prompt="Output CSV path")
 @click.option("-s", "--save-compression", "saveCompression", type=click.Path(dir_okay=True, file_okay=False, resolve_path=True), default=None, help="Save compressed sequence files to the specified directory.")
 @click.option("-c", "--compression", default="lzma", type=click.Choice(['lzma', 'gzip', 'bzip2', 'zlib', 'lz4', 'bwt-disk-rle-range', 'bwt-disk-dna5-symbol']), help="The compression algorithm to use. Defaults to lzma.")
 @click.option("--show-progress/--no-show-progress", "showProgress", default=True, help="Whether to show a progress bar for computing compression distances.")
@@ -32,8 +33,11 @@ from .version import __version__
 @click.option("-bM", "--bwte-mem", "bwteMem", type=int, default=256, help="BWT-Disk option: The amount of memory in MB for use in the bwt-disk executable.")
 @click.option("-l", "--log-type", default="html", type=click.Choice(["html", "md"]), help="The output format for the report. Defaults to html.")
 @click.option("--show-log/--no-show-log", default=True, help="Whether to automatically open the log in the browser if log type is html. Defaults to True.")
-def cli(fasta, directories, numThreads, compression, showProgress, saveCompression, output, reverse_complement, BWT, bwteMem, log_type, show_log):
+def cli(sequences, fasta, directories, numThreads, compression, showProgress, saveCompression, output, reverse_complement, BWT, bwteMem, log_type, show_log):
     start_time = datetime.now()
+
+    if fasta or directories:
+        click.secho("Warning: the -f and -d flags are deprecated and will be removed before release. Please pass files and paths directly without the flags.", fg="yellow")
 
     if saveCompression:
         saveCompression = Path(saveCompression)
@@ -55,11 +59,11 @@ def cli(fasta, directories, numThreads, compression, showProgress, saveCompressi
     output = Path(output) # make the output into a Path object
 
     # generate a list of absolute paths containing the files to be compared
-    files = [Path(f) for f in fasta]
+    sequences = [Path(sequence) for sequence in sequences]
+    files = [path for path in sequences if path.is_file()]
 
     # get all the files in the passed directories
-    for directory in directories:
-        directory = Path(directory)
+    for directory in [path for path in sequences if path.is_dir()]:
         for f in directory.iterdir():
             if f.suffix.lower() in [".fasta", ".fna", ".fa", ".faa"]:
                 files.append(f)
