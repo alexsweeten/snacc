@@ -38,7 +38,7 @@ def runBwtDisk(seq, inputs, extension):
     return result
 
 
-def extract_sequences(filepath, reverse_complement=False, BWT=False):
+def extract_sequences(filepath, reverse_complement=False):
     if type(filepath) == tuple:
         return extract_sequences(filepath[0]) + extract_sequences(filepath[1])
     seq = ""
