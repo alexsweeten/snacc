@@ -4,64 +4,38 @@ import gzip
 import lzma
 import os
 import sys
+import tempfile
 import zlib
 import subprocess
 import lz4framed
 from Bio import SeqIO
 from pathlib import Path
 
-def runBwtDisk(filename, inputs, save_directory=None):
-	"""
-	read in fasta and bwte options to run bwt-disk with compression and filters
-
-		Args:
-			filename (pathlib.Path): A path object for the sequence's original fasta
-			inputs (dict): a dictionary of options to bwte executable
-
-		Retuns:
-			(file): The return statement. A binary file object of the BWT-Disk
-					transformed sequence thats compressed
-	"""
-	if type(filename) == tuple:
-		out_file = filename[0].stem + filename[1].name
-		seqs = extract_sequences(filename[0]) + extract_sequences(filename[1])
-		f = open(out_file,'w+')
-		f.write(seqs)
-		f.close()
-	else:
-		out_file = filename.absolute()
-	extensions = ['','.gz', '.rrc', '.atn', '.lzma']
-	basedir = os.path.abspath(os.path.dirname(__file__))
-	bwte_exec =  os.path.join(basedir,'../bin/bwt_disk/bwte')
-	cmd = [bwte_exec]
-	for key in inputs:
-		cmd += inputs[key]
-	subprocess.run(cmd + [out_file])
-
-	output = str(out_file) + ".bwt" + extensions[int(inputs['bwte-compress'][1])]
-	result = open(output, 'rb').read()
-	if type(filename) == tuple:
-		if save_directory:
-			subprocess.run(['mv','-t',save_directory,output, output + ".aux"])
-			subprocess.run(['rm',out_file])
-		else:
-			subprocess.run(['rm',output, out_file, output + ".aux"])
-	else:
-		if save_directory:
-			subprocess.run(['mv','-t',save_directory,output, output +".aux"])
-		else:
-			subprocess.run(['rm',output, output + ".aux"])
-	return result
-
-def bwt(s):
+def runBwtDisk(seq, inputs, extension):
     """
-    Code for Burrows-Wheeler Transformation. The code is adapted from Rosetta Code.
+    read in fasta and bwte options to run bwt-disk with compression and filters
+
+        Args:
+            seq (str): A sequence stripped of all headers etc.
+            inputs (dict): a dictionary of options to bwte executable
+
+        Retuns:
+            (file): The return statement. A binary file object of the BWT-Disk
+                    transformed sequence thats compressed
+
     """
-    # uncomment below if you plan on decoding
-    #s = "\002" + s + "\003"
-    table = sorted(s[i:] + s[:i] for i in range(len(s)))
-    last_column = [row[-1:] for row in table]
-    return "".join(last_column)
+    basedir = os.path.abspath(os.path.dirname(__file__))
+    bwte_exec =  os.path.join(basedir,'../bin/bwt_disk/bwte')
+    cmd = [bwte_exec]
+    for key in inputs:
+        cmd += inputs[key]
+    with tempfile.NamedTemporaryFile(mode='w+') as f:
+        f.write(seq)
+        subprocess.run(cmd + [f.name])
+        result = f.read()
+        toRemove = [f.name + extension, f.name + extension + ".aux"]
+    subprocess.run(["rm"] + toRemove)
+    return result
 
 
 def extract_sequences(filepath, reverse_complement=False, BWT=False):
@@ -75,10 +49,7 @@ def extract_sequences(filepath, reverse_complement=False, BWT=False):
             seq += str(seq_record.seq)
     if not seq:
         raise ValueError(f"No sequence extracted. Ensure that file {filepath.absolute()} contains a proper FASTA definition line (i.e. a line that starts with '>sequence_name').")
-    if BWT:
-        return bwt(seq)
-    else:
-        return seq
+
 
 def compressed_size(filename, algorithm, reverse_complement=False, save_directory=None, BWT=False, bwte_inputs = {}):
     '''
@@ -93,16 +64,25 @@ def compressed_size(filename, algorithm, reverse_complement=False, save_director
         (pathlib.Path,int): the number of bytes in the compressed file
     '''
 
-    # check if already compressed @TODO
-    sequence = bytes(extract_sequences(filename, reverse_complement=reverse_complement, BWT=BWT), encoding="utf-8")
+    sequence = extract_sequences(filename, reverse_complement=reverse_complement)
     extension = {
-        "bwt-disk": "",
         "lzma": ".lzma",
         "gzip": ".gz",
         "bzip2": ".bz2",
         "zlib": ".ZLIB",
-        "lz4": ".lz4"
+        "lz4": ".lz4",
+        "bwt-disk-rle-range": ".bwt.rrc",
+        "bwt-disk-dna5-symbol": ".bwt.atn"
     }
+    file_ext = extension["algorithm"]
+
+    if BWT:
+        if "bwt" not in algorithm:
+            sequence = runBwtDisk(sequence,bwte_inputs)
+            file_ext = ".bwt" + file_ext
+
+    sequence = bytes(sequence, encoding = "utf-8")
+    
     if algorithm == "lzma":
         compressed_seq = lzma.compress(sequence)
     elif algorithm == "gzip":
@@ -113,18 +93,22 @@ def compressed_size(filename, algorithm, reverse_complement=False, save_director
         compressed_seq = zlib.compress(sequence)
     elif algorithm == "lz4":
         compressed_seq = lz4framed.compress(sequence)
-    elif algorithm == 'bwt-disk':
-        compressed_seq = runBwtDisk(filename, bwte_inputs)
+    elif algorithm == 'bwt-disk-rle-range':
+        compressed_seq = runBwtDisk(sequence, bwte_inputs, file_ext)
+    elif algorithm == 'bwt-disk-dna5-symbol':
+        compressed_seq = runBwtDisk(sequence, bwte_inputs, file_ext)
 
     if save_directory:
         if type(filename) == tuple:
             out_file = filename[0].stem + filename[1].name
         else:
             out_file = filename.name
-        with open(os.path.join(save_directory.absolute(), out_file + extension[algorithm]), 'wb') as f:
+        with open(os.path.join(save_directory.absolute(), out_file + file_ext), 'wb') as f:
             f.write(compressed_seq)
 
     return (filename, sys.getsizeof(compressed_seq))
+
+
 #calculates NCD for 2 sequence sizes and their concatenation size
 def compute_distance(x, y, cxy, cyx):
     if x > y:
