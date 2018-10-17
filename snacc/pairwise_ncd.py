@@ -40,7 +40,7 @@ def runBwtDisk(seq, inputs, extension):
 
 def extract_sequences(filepath, reverse_complement=False):
     if type(filepath) == tuple:
-        return extract_sequences(filepath[0]) + extract_sequences(filepath[1])
+        return extract_sequences(filepath[0], reverse_complement = reverse_complement) + extract_sequences(filepath[1], reverse_complement=reverse_complement)
     seq = ""
     for seq_record in SeqIO.parse(filepath.absolute(), "fasta"):
         if reverse_complement:
