@@ -25,30 +25,31 @@ from .version import __version__
 @click.option("-n", "--num-threads", "numThreads", type=int, default=None, help="Number of Threads to use (default 5 * number of cores).")
 @click.option("-o", "--output", type=click.Path(dir_okay=False, exists=False), help="The location for the output CSV file.")
 @click.option("-s", "--save-compression", "saveCompression", type=click.Path(dir_okay=True, file_okay=False, resolve_path=True), default=None, help="Save compressed sequence files to the specified directory.")
-@click.option("-c", "--compression", default="lzma", type=click.Choice(['lzma', 'gzip', 'bzip2', 'zlib', 'lz4', 'bwt-disk']), help="The compression algorithm to use. Defaults to lzma.")
+@click.option("-c", "--compression", default="lzma", type=click.Choice(['lzma', 'gzip', 'bzip2', 'zlib', 'lz4', 'bwt-disk-rle-range', 'bwt-disk-dna5-symbol']), help="The compression algorithm to use. Defaults to lzma.")
 @click.option("--show-progress/--no-show-progress", "showProgress", default=True, help="Whether to show a progress bar for computing compression distances.")
 @click.option("-r", "--reverse_complement", is_flag=True, default=False, help="Whether to use the reverse complement of the sequence.")
 @click.option("-b", "--burrows-wheeler", "BWT", is_flag=True, default=False, help="Whether to compute the Burrows-Wheeler Tranform prior to compression and reverse complement (default 256 MB).")
 @click.option("-bM", "--bwte-mem", "bwteMem", type=int, default=256, help="BWT-Disk option: The amount of memory in MB for use in the bwt-disk executable.")
-@click.option("-bC", "--bwte-compress", "bwteCompress", type=click.Choice(['None', 'gzip', 'rle-range-encoding', 'dna5-symbol', 'lzma']), default='gzip', help="BWT-Disk Option: The compression to use when calling bwt-disk before compression, may require separate libraries if not using default.")
 @click.option("-l", "--log-type", default="html", type=click.Choice(["html", "md"]), help="The output format for the report. Defaults to html.")
 @click.option("--show-log/--no-show-log", default=True, help="Whether to automatically open the log in the browser if log type is html. Defaults to True.")
-def cli(fasta, directories, numThreads, compression, showProgress, saveCompression, output, reverse_complement, BWT, bwteMem, bwteCompress, log_type, show_log):
+def cli(fasta, directories, numThreads, compression, showProgress, saveCompression, output, reverse_complement, BWT, bwteMem, log_type, show_log):
     start_time = datetime.now()
 
     if saveCompression:
         saveCompression = Path(saveCompression)
     # Map bwte inputs to options for the bwte executable
-    compressions = {
-        'None': 0,
-        'gzip': 1,
-        'rle-range-encoding': 2,
-        'dna5-symbol': 3,
-        'lzma': 4
+    bwte_compressions = {
+        'bwt-disk-rle-range': "2",
+        'bwt-disk-dna5-symbol': "3",
     }
+    if compression in bwte_compressions:
+        bwteCompress = bwte_compressions[compression]
+    else:
+        bwteCompress = "0" # No compression
+
     bwte_inputs = {
         'bwte-mem': ['-m', str(bwteMem)],
-        'bwte-compress': ['-b', str(compressions[bwteCompress])]
+        'bwte-compress': ['-b', bwteCompress]
     }
 
     output = Path(output) # make the output into a Path object
