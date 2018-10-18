@@ -7,7 +7,6 @@ snacc is a pipeline that implements the normalized compression distance (NCD) sp
 - [Installation and Dependencies](#installation-and-dependencies)
 - [Set up a virtual env (optional)](#set-up-a-virtual-env-optional)
 - [Install the dependencies](#install-the-dependencies)
-- [Usage](#usage)
 - [Examples](#examples)
 
 
