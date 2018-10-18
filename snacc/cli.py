@@ -29,6 +29,7 @@ from .version import __version__
                               exists=True,
                               resolve_path=True),
               multiple=True,
+              hidden=True,
               help="FASTA file containing sequence to compare.")
 @click.option("-d", "--directory", "directories",
               type=click.Path(dir_okay=True,
@@ -36,6 +37,7 @@ from .version import __version__
                               exists=True,
                               resolve_path=True),
               multiple=True,
+              hidden=True,
               help="Directory containing FASTA files to compare.")
 @click.option("-n", "--num-threads", "numThreads",
               type=int,
