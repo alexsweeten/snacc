@@ -10,6 +10,8 @@ Welcome to snacc's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   cli
+
 
 
 Indices and tables

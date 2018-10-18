@@ -107,7 +107,8 @@ html_static_path = ['_static']
 html_theme_options = dict(fixed_sidebar=True,
                           show_related=True,
                           logo_name=True,
-                          logo="Snacc.png")
+                          logo="Snacc.png",
+                          description="Normalized compression distance for alignment-free biological sequence comparison.")
 
 
 # -- Options for HTMLHelp output ---------------------------------------------
