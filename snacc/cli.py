@@ -127,6 +127,10 @@ def cli(sequences,
     sequences = [Path(sequence) for sequence in sequences]
     files = [path for path in sequences if path.is_file()]
 
+    # temporary fix for #80 (to be removed when the -d and -f flags are removed)
+    files.extend([Path(_f) for _f in fasta])
+    sequences.extend([Path(_f) for _f in directories])
+
     # get all the files in the passed directories
     for directory in [path for path in sequences if path.is_dir()]:
         for f in directory.iterdir():
