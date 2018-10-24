@@ -3,13 +3,14 @@ import bz2
 import gzip
 import lzma
 import os
+import subprocess
 import sys
 import tempfile
 import zlib
-import subprocess
+from pathlib import Path
+
 import lz4framed
 from Bio import SeqIO
-from pathlib import Path
 
 def runBwtDisk(seq, inputs, extension):
     """
