@@ -14,14 +14,14 @@ from Bio import SeqIO
 
 def runBwtDisk(seq, inputs, extension):
     """
-    read in fasta and bwte options to run bwt-disk with compression and filters.
+    Run bwt-disk executable on an input sequence
 
     Args:
-        seq (str): A sequence stripped of all headers etc.
-        inputs (dict): a dictionary of options to bwte executable.
-
-    Retuns:
-        (file): The return statement. A binary file object of the BWT-Disk transformed sequence thats compressed.
+        seq (str): A sequence stripped of all headers ('>')
+        inputs (dict): a dictionary of options (flag,value) to bwte executable
+        extension (str): The expected file extension returned by bwt-disk (controlled from compressed size)
+    Returns:
+        (str): The return statement. A binary string of the BWT-Disk transformed sequence, post-processed according to 'inputs'
     """
     basedir = os.path.abspath(os.path.dirname(__file__))
     bwte_exec = os.path.join(basedir, '../bin/bwt_disk/bwte')
