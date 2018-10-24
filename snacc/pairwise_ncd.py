@@ -3,29 +3,28 @@ import bz2
 import gzip
 import lzma
 import os
+import subprocess
 import sys
 import tempfile
 import zlib
-import subprocess
+from pathlib import Path
+
 import lz4framed
 from Bio import SeqIO
-from pathlib import Path
 
 def runBwtDisk(seq, inputs, extension):
     """
-    read in fasta and bwte options to run bwt-disk with compression and filters
+    read in fasta and bwte options to run bwt-disk with compression and filters.
 
-        Args:
-            seq (str): A sequence stripped of all headers etc.
-            inputs (dict): a dictionary of options to bwte executable
+    Args:
+        seq (str): A sequence stripped of all headers etc.
+        inputs (dict): a dictionary of options to bwte executable.
 
-        Retuns:
-            (file): The return statement. A binary file object of the BWT-Disk
-                    transformed sequence thats compressed
-
+    Retuns:
+        (file): The return statement. A binary file object of the BWT-Disk transformed sequence thats compressed.
     """
     basedir = os.path.abspath(os.path.dirname(__file__))
-    bwte_exec =  os.path.join(basedir,'../bin/bwt_disk/bwte')
+    bwte_exec = os.path.join(basedir, '../bin/bwt_disk/bwte')
     cmd = [bwte_exec]
     for key in inputs:
         cmd += inputs[key]
@@ -38,34 +37,51 @@ def runBwtDisk(seq, inputs, extension):
     return result
 
 
-def extract_sequences(filepath, reverse_complement=False):
-    if type(filepath) == tuple:
-        return extract_sequences(filepath[0], reverse_complement = reverse_complement) + extract_sequences(filepath[1], reverse_complement=reverse_complement)
+def extract_sequences(sequences, reverse_complement=False):
+    """
+    Extracts and concatenates the sequences within FASTA files.
+
+    Args:
+        sequences (pathlib.Path or tuple): Either the :obj:`~pathlib.Path` of the FASTA file or a tuple of FASTA files from which to extract sequences.
+        reverse_complement (bool, optional): Whether to take the reverse complement of the sequences.
+
+    Returns:
+        str: The concatenated sequences within the FASTA file(s).
+
+    Raises:
+        ValueError: When the FASTA file is malformed.
+    """
+    if type(sequences) == tuple:
+        return extract_sequences(sequences[0], reverse_complement=reverse_complement) + extract_sequences(sequences[1], reverse_complement=reverse_complement)
     seq = ""
-    for seq_record in SeqIO.parse(filepath.absolute(), "fasta"):
+    for seq_record in SeqIO.parse(sequences.absolute(), "fasta"):
         if reverse_complement:
             seq += str(seq_record.seq.reverse_complement())
         else:
             seq += str(seq_record.seq)
     if not seq:
-        raise ValueError(f"No sequence extracted. Ensure that file {filepath.absolute()} contains a proper FASTA definition line (i.e. a line that starts with '>sequence_name').")
+        raise ValueError(f"No sequence extracted. Ensure that file {sequences.absolute()} contains a proper FASTA definition line (i.e. a line that starts with '>sequence_name').")
     return seq
 
 
-def compressed_size(filename, algorithm, reverse_complement=False, save_directory=None, BWT=False, bwte_inputs = {}):
+def compressed_size(sequences, algorithm, reverse_complement=False, save_directory=None, BWT=False, bwte_inputs={}):
     '''
+    Calculates the compressed size of the sequences in a file or tuple of files.
 
     Args:
-        filename (pathlib.Path)
-        algorithm (str)
-                reverse_complement(bool, optional)
-        save_directory (pathlib.Path, optional)
+        sequences (pathlib.Path or tuple): Either the :obj:`~pathlib.Path` of the FASTA file to compress or a tuple of FASTA files to concatenate and compress.
+        algorithm (str): Which algorithm to compress the file with. Valid options are [``lzma``, ``gzip``, ``bzip2``, ``zlib``, ``lz4``, ``bwt-disk-rle-range``, ``bwt-disk-dna5-symbol``].
+        reverse_complement(bool, optional): Whether to take the reverse complement of the sequences in the file.
+        save_directory (pathlib.Path, optional): If given, where to save the compressed file.
 
-    Returns
-        (pathlib.Path,int): the number of bytes in the compressed file
+    Note:
+        The entire file is not compressed, just the sequences within it.
+
+    Returns:
+        tuple: A tuple whose zeroth element is ``sequences`` (_i.e._ either a :obj:`~pathlib.Path` or a tuple) and first element is the number of bytes in the compressed file.
     '''
 
-    sequence = extract_sequences(filename, reverse_complement=reverse_complement)
+    sequence = extract_sequences(sequences, reverse_complement=reverse_complement)
     extension = {
         "lzma": ".lzma",
         "gzip": ".gz",
@@ -80,10 +96,10 @@ def compressed_size(filename, algorithm, reverse_complement=False, save_director
     if BWT:
         if "bwt" not in algorithm:
             file_ext = ".bwt" + file_ext
-            sequence = runBwtDisk(sequence,bwte_inputs, ".bwt")
+            sequence = runBwtDisk(sequence, bwte_inputs, ".bwt")
     else:
         if "bwt" not in algorithm:
-            sequence = bytes(sequence, encoding = "utf-8")
+            sequence = bytes(sequence, encoding="utf-8")
 
     if algorithm == "lzma":
         compressed_seq = lzma.compress(sequence)
@@ -101,18 +117,29 @@ def compressed_size(filename, algorithm, reverse_complement=False, save_director
         compressed_seq = runBwtDisk(sequence, bwte_inputs, file_ext)
 
     if save_directory:
-        if type(filename) == tuple:
-            out_file = filename[0].stem + filename[1].name
+        if type(sequences) == tuple:
+            out_file = sequences[0].stem + sequences[1].name
         else:
-            out_file = filename.name
+            out_file = sequences.name
         with open(os.path.join(save_directory.absolute(), out_file + file_ext), 'wb') as f:
             f.write(compressed_seq)
 
-    return (filename, sys.getsizeof(compressed_seq))
+    return (sequences, sys.getsizeof(compressed_seq))
 
 
-#calculates NCD for 2 sequence sizes and their concatenation size
 def compute_distance(x, y, cxy, cyx):
+    """
+    Calculates normalized compression distance for two files and their concatenations.
+
+    Args:
+        x (int): The size (in bytes) of the first file.
+        y (int): The size (in bytes) of the second file.
+        cxy (int): The size (in bytes) of the second file concatenated onto the first.
+        cyx (int): The size (in bytes) of the first file concatenated onto the second.
+
+    Returns:
+        int: The distance between the two files.
+    """
     if x > y:
         return min((cxy - y) / x, (cyx - y) / x)
     elif y > x:

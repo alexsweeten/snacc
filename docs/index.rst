@@ -10,6 +10,7 @@ Welcome to snacc's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   api
    cli
 
 
