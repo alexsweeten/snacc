@@ -2,7 +2,7 @@ numpy
 scipy
 pandas
 scikit-learn
-click
+click==7.0
 py-lz4framed
 tqdm
 biopython
