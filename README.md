@@ -1,19 +1,8 @@
 ![logo](https://github.com/SweetiePi/bioncd-hackseq/blob/master/logo/snacc-header.jpg)
-# snacc: compress and compare pathogen genomes without sequence alignment
-snacc is a pipeline that implements the normalized compression distance (NCD) specifically for biological data. The workflow primarily consists of 3 stages: compression, clustering, and visualization. The goal of this project is to provide a faster method of comparing large-scale pathogen genomes to conventional alignment-based methods such as BLAST by exploiting the inherent redundancies of the genetic code.
+# snacc: alignment-free genome comaprison utilizing the normalized compression distance
+`snacc` (sequence non-alignment compression & comparison) is a program implementing the normalized compression distance (NCD) specifically for biological data. These distances can be used for clustering, or to rapidly infer phylogenies for large sets of genomes.
 
-## Table of contents
-- [Workflow](#workflow)
-- [Installation and Dependencies](#installation-and-dependencies)
-- [Set up a virtual env (optional)](#set-up-a-virtual-env-optional)
-- [Install the dependencies](#install-the-dependencies)
-- [Examples](#examples)
-
-
-## Workflow
-![workflow](https://github.com/SweetiePi/bioncd-hackseq/blob/master/logo/workflow-graphic.jpg)
-
-## Installation and Dependencies
+## Dependencies
 
 - [`python3`](https://python.org)
 - [`numpy`](https://numpy.org)
@@ -25,40 +14,25 @@ snacc is a pipeline that implements the normalized compression distance (NCD) sp
 - [`click`](https://click.palletsprojects.com/en/7.x/)
 - [`tqdm`](https://pypi.org/project/tqdm/)
 - [`biopython`](https://biopython.org/)
-- [`umap-learn`](https://github.com/lmcinnes/umap)
-- [`jinja2`](http://jinja.pocoo.org/docs/2.10/)
-- [`markdown`](https://github.com/Python-Markdown/markdown)
 
-### Set up a virtual env (optional)
-To install virtualenv use the following command in your terminal:
-
-    pip install virtualenv
-
-Then in the directory you want to use, create a virtualenv named env:
-
-    virtualenv -p python3.6 env
-
-And then activate the environment with:
-
-    source env/bin/activate
-
-You can leave the virtualenv at any time with the command:
-
-    deactivate
-
-### Install the dependencies
+## Installation
 
 To install the dependencies:
 
     pip install git+https://github.com/SweetiePi/snacc
-
-#### Optional: install BWT disk functionality
-To use snacc with the [BWT-Disk](https://people.unipmn.it/manzini/bwtdisk/) function you can run the following commands:
+    
+You can `snacc` directly from this repo as long as you have the dependencies installed.
+We recommend you create a conda environment for `snacc` and install PathOGiST through conda.
+`snacc` requires Python 3.6, so create a conda environment with the right python version:
+```bash
+conda create --name snacc python=3.6
 ```
-cd /path/to/snacc/bin/bwt_disk
-make clean
-make
+And then activate the environment and install `snacc`:
+```bash
+source activate snacc
+conda install -c asweeten pathogist
 ```
+When inside the `snacc` conda environment, you can verify correct isntallation by running `snacc -h`.
 
 ## Examples
 
@@ -68,7 +42,7 @@ source activate my_env
 ```
 1) Most basic usage
 ```
-snacc -d [folder with sequences] -o [output name]
+snacc [folder with sequences] -o [output name]
 ```
 2) Intermediate: customize number of threads and compression algorithm
 ```
@@ -80,29 +54,16 @@ snacc \
 --directory [folder with sequences] \
 --output [output name] \
 --num-threads 24 \
---compression zlib \
---save-compression [folder to store zipped files] \
---show-progress False
-```
-
-### Using bwt-disk functionality
-The following command will run a burrows-wheeler transform in disk using the default amount of memory (256MB) and then compress using range encoding.
-```
-snacc\
---directory [folder with sequences] \
---output [output name] \
---num-threads 24 \
---compression bwt-disk \
---bwte-compress rle-range-encoding
---save-compression [folder to store zipped files] \
---show-progress False
+--compression lz4 \
+--fast-mode True \
+--reverse-compliment False
 ```
 
 ## Output
 ### snacc analysis
 * Analysis time: 2018-10-14 15:18:17.257619
 * Analysis duration: 0:00:26.383997
-* Compression method: lzma
+* Compression method: lz4
 * Reverse complement: False
 * Burrows-Wheeler transform: False
 * Output filepath: /Users/BenjaminLee/Desktop/Python/Research/hackseq18/bioncd-hackseq/test.csv
@@ -124,13 +85,13 @@ snacc\
   <tbody>
     <tr>
       <td>mysteryGenome_1.fasta</td>
-      <td>0.000644</td>
+      <td>0.0</td>
       <td>0.003542</td>
     </tr>
     <tr>
       <td>mysteryGenome_2.fasta</td>
       <td>0.003542</td>
-      <td>0.000641</td>
+      <td>0.0</td>
     </tr>
   </tbody>
 </table>
@@ -141,5 +102,3 @@ snacc\
 * scikit-learn: 0.20.0
 * py-lz4framed: 0.12.0
 * umap-learn: 0.3.5
-
-![results](https://github.com/SweetiePi/bioncd-hackseq/blob/master/logo/output2.png)
