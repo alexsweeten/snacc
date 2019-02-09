@@ -2,17 +2,14 @@ import concurrent.futures
 import itertools
 import os
 import sys
-import webbrowser
 from datetime import datetime
 from pathlib import Path
 
 import click
-import jinja2
 import lz4framed
 import pandas as pd
 import sklearn
 import umap
-from markdown import markdown
 from tqdm import tqdm
 
 from .pairwise_ncd import compressed_size, compute_distance
@@ -79,13 +76,9 @@ from .version import __version__
               type=int,
               default=256,
               help="BWT-Disk option: The amount of memory in MB for use in the bwt-disk executable.")
-@click.option("-l", "--log-type",
-              default="html",
-              type=click.Choice(["html", "md"]),
-              help="The output format for the report. Defaults to html.")
-@click.option("--show-log/--no-show-log",
+@click.option("--log/--no-log", "log",
               default=True,
-              help="Whether to automatically open the log in the browser if log type is html. Defaults to True.")
+              help="Whether to save a log.")
 def cli(sequences,
         fasta,
         directories,
@@ -97,8 +90,7 @@ def cli(sequences,
         reverse_complement,
         BWT,
         bwteMem,
-        log_type,
-        show_log):
+        log):
     start_time = datetime.now()
 
     if fasta or directories:
@@ -185,27 +177,23 @@ def cli(sequences,
     df.columns = list(map(lambda x: Path(x).name, df.columns))
     df.file = df.file.apply(lambda x: Path(x).name)
 
-    rendered = jinja2.Template(log).render(time=datetime.now(),
-                                           method=compression,
-                                           py_version=str(sys.version.replace("\n", "")),
-                                           snacc_version=__version__,
-                                           umap_version=umap.__version__,
-                                           sklearn_version=sklearn.__version__,
-                                           lz4framed_version=lz4framed.__version__,
-                                           files=[str(_file.absolute()) for _file in files],
-                                           bwt=BWT,
-                                           rev_comp=reverse_complement,
-                                           table=df.to_html(index=False),
-                                           duration=datetime.now() - start_time,
-                                           output_path=output.absolute())
+    if log:
+        rendered = log_template.format(time=datetime.now(),
+                                       method=compression,
+                                       py_version=str(sys.version.replace("\n", "")),
+                                       snacc_version=__version__,
+                                       umap_version=umap.__version__,
+                                       sklearn_version=sklearn.__version__,
+                                       lz4framed_version=lz4framed.__version__,
+                                       bwt=BWT,
+                                       rev_comp=reverse_complement,
+                                       duration=datetime.now() - start_time,
+                                       output_path=output.absolute())
 
-    if log_type == "html":
-        rendered = markdown(rendered)
-        rendered = jinja2.Template(rendered_html).render(body=rendered)
-
-    print(rendered, file=open(output.stem + "." + log_type, "w"))
-    if show_log and log_type == "html":
-        webbrowser.open("file://" + str(output.parent.absolute()) + "/" + output.stem + "." + log_type)
+        with open(output.stem + ".md", "w") as f:
+            print(rendered, file=f)
+            for _f in [str(_file.absolute()) for _file in files]:
+                print("*", _f, file=f)
 
 def tqdm_parallel_map(executor, fn, showProgress, *iterables, **kwargs):
     """
@@ -225,51 +213,23 @@ def tqdm_parallel_map(executor, fn, showProgress, *iterables, **kwargs):
             yield f.result()
 
 
-rendered_html = '''
-<!doctype html>
-<html lang="en">
-  <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+log_template = '''# `snacc` Analysis
+## Run Information
+* Analysis time: {time}
+* Analysis duration: {duration}
+* Compression method: {method}
+* Reverse complement: {rev_comp}
+* Burrows-Wheeler transform: {bwt}
+* Output filepath: {output_path}
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-    <title>snacc analysis</title>
-  </head>
-  <body>
-  {{ body }}
-  </body>
-<style>
-body {
-    padding-left: 50px;
-    padding-top: 25px;
-}
-</style>
-</html>
-'''
-log = '''#snacc analysis
-* Analysis time: {{time}}
-* Analysis duration: {{duration}}
-* Compression method: {{method}}
-* Reverse complement: {{rev_comp}}
-* Burrows-Wheeler transform: {{bwt}}
-* Output filepath: {{output_path}}
+## Version Information
+* Python: {py_version}
+* snacc: {snacc_version}
+* scikit-learn: {sklearn_version}
+* py-lz4framed: {lz4framed_version}
+* umap-learn: {umap_version}
 
-### Analyzed Files
-{% for _file in files -%}
-* {{_file}}
-{% endfor %}
-
-### Distance Matrix
-{{table}}
-
-### Version Information
-* Python: {{py_version}}
-* snacc: {{snacc_version}}
-* scikit-learn: {{sklearn_version}}
-* py-lz4framed: {{lz4framed_version}}
-* umap-learn: {{umap_version}}
+## Analyzed Files
 '''
 
 
