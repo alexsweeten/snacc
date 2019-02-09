@@ -12,31 +12,6 @@ from pathlib import Path
 import lz4framed
 from Bio import SeqIO
 
-def runBwtDisk(seq, inputs, extension):
-    """
-    Run bwt-disk executable on an input sequence
-
-    Args:
-        seq (str): A sequence stripped of all headers ('>')
-        inputs (dict): a dictionary of options (flag,value) to bwte executable
-        extension (str): The expected file extension returned by bwt-disk (controlled from compressed size)
-    Returns:
-        (str): The return statement. A binary string of the BWT-Disk transformed sequence, post-processed according to 'inputs'
-    """
-    basedir = os.path.abspath(os.path.dirname(__file__))
-    bwte_exec = os.path.join(basedir, '../bin/bwt_disk/bwte')
-    cmd = [bwte_exec]
-    for key in inputs:
-        cmd += inputs[key]
-    with tempfile.NamedTemporaryFile(mode='w+') as f:
-        f.write(seq)
-        subprocess.run(cmd + [f.name])
-        result = open(f.name + extension, "rb").read()
-    toRemove = [f.name + extension, f.name + extension + ".aux"]
-    subprocess.run(["rm"] + toRemove)
-    return result
-
-
 def extract_sequences(sequences, reverse_complement=False):
     """
     Extracts and concatenates the sequences within FASTA files.
@@ -87,19 +62,11 @@ def compressed_size(sequences, algorithm, reverse_complement=False, save_directo
         "gzip": ".gz",
         "bzip2": ".bz2",
         "zlib": ".ZLIB",
-        "lz4": ".lz4",
-        "bwt-disk-rle-range": ".bwt.rrc",
-        "bwt-disk-dna5-symbol": ".bwt.atn"
+        "lz4": ".lz4"
     }
     file_ext = extension[algorithm]
 
-    if BWT:
-        if "bwt" not in algorithm:
-            file_ext = ".bwt" + file_ext
-            sequence = runBwtDisk(sequence, bwte_inputs, ".bwt")
-    else:
-        if "bwt" not in algorithm:
-            sequence = bytes(sequence, encoding="utf-8")
+    sequence = bytes(sequence, encoding="utf-8")
 
     if algorithm == "lzma":
         compressed_seq = lzma.compress(sequence)
@@ -111,10 +78,6 @@ def compressed_size(sequences, algorithm, reverse_complement=False, save_directo
         compressed_seq = zlib.compress(sequence)
     elif algorithm == "lz4":
         compressed_seq = lz4framed.compress(sequence)
-    elif algorithm == 'bwt-disk-rle-range':
-        compressed_seq = runBwtDisk(sequence, bwte_inputs, file_ext)
-    elif algorithm == 'bwt-disk-dna5-symbol':
-        compressed_seq = runBwtDisk(sequence, bwte_inputs, file_ext)
 
     if save_directory:
         if type(sequences) == tuple:
