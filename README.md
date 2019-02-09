@@ -1,5 +1,5 @@
 ![logo](https://github.com/SweetiePi/bioncd-hackseq/blob/master/logo/snacc-header.jpg)
-# snacc: alignment-free genome comaprison utilizing the normalized compression distance
+# snacc: alignment-free genome comparison utilizing the normalized compression distance
 `snacc` (sequence non-alignment compression & comparison) is a program implementing the normalized compression distance (NCD) specifically for biological data. These distances can be used for clustering, or to rapidly infer phylogenies for large sets of genomes.
 
 ## Dependencies
@@ -30,7 +30,7 @@ conda create --name snacc python=3.6
 And then activate the environment and install `snacc`:
 ```bash
 source activate snacc
-conda install -c asweeten pathogist
+conda install -c asweeten snacc
 ```
 When inside the `snacc` conda environment, you can verify correct isntallation by running `snacc -h`.
 
