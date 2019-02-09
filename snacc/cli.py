@@ -8,8 +8,6 @@ from pathlib import Path
 import click
 import lz4framed
 import pandas as pd
-import sklearn
-import umap
 from tqdm import tqdm
 
 from .pairwise_ncd import compressed_size, compute_distance
@@ -68,14 +66,6 @@ from .version import __version__
               is_flag=True,
               default=False,
               help="Whether to use the reverse complement of the sequence.")
-@click.option("-b", "--burrows-wheeler", "BWT",
-              is_flag=True,
-              default=False,
-              help="Whether to compute the Burrows-Wheeler Tranform prior to compression and reverse complement (default 256 MB).")
-@click.option("-bM", "--bwte-mem", "bwteMem",
-              type=int,
-              default=256,
-              help="BWT-Disk option: The amount of memory in MB for use in the bwt-disk executable.")
 @click.option("--log/--no-log", "log",
               default=True,
               help="Whether to save a log.")
@@ -88,9 +78,8 @@ def cli(sequences,
         saveCompression,
         output,
         reverse_complement,
-        BWT,
-        bwteMem,
-        log):
+        log_type,
+        show_log):
     start_time = datetime.now()
 
     if fasta or directories:
@@ -98,21 +87,7 @@ def cli(sequences,
 
     if saveCompression:
         saveCompression = Path(saveCompression)
-    # Map bwte inputs to options for the bwte executable
-    bwte_compressions = {
-        'bwt-disk-rle-range': "2",
-        'bwt-disk-dna5-symbol': "3",
-    }
-    if compression in bwte_compressions:
-        bwteCompress = bwte_compressions[compression]
-    else:
-        bwteCompress = "0" # No compression
-
-    bwte_inputs = {
-        'bwte-mem': ['-m', str(bwteMem)],
-        'bwte-compress': ['-b', bwteCompress]
-    }
-
+    
     output = Path(output) # make the output into a Path object
 
     # generate a list of absolute paths containing the files to be compared
@@ -126,7 +101,7 @@ def cli(sequences,
     # get all the files in the passed directories
     for directory in [path for path in sequences if path.is_dir()]:
         for f in directory.iterdir():
-            if f.suffix.lower() in [".fasta", ".fna", ".fa", ".faa"]:
+            if f.suffix.lower() in [".fasta", ".fna", ".fa", ".faa", ".fsa"]:
                 files.append(f)
     files = sorted(list(set(files)), key=lambda x: str(x.absolute())) # remove any duplicates and sort for cleaner log output
 
@@ -139,9 +114,7 @@ def cli(sequences,
                                              sequences=x,
                                              algorithm=compression,
                                              save_directory=saveCompression,
-                                             reverse_complement=reverse_complement,
-                                             BWT=BWT,
-                                             bwte_inputs=bwte_inputs),
+                                             reverse_complement=reverse_complement),
                                          showProgress,
                                          files)
     compressed_dict = dict(compressed_sizes) # {PATH: compressed size}
@@ -153,9 +126,7 @@ def cli(sequences,
                                                    sequences=x,
                                                    algorithm=compression,
                                                    save_directory=saveCompression,
-                                                   reverse_complement=reverse_complement,
-                                                   BWT=BWT,
-                                                   bwte_inputs=bwte_inputs),
+                                                   reverse_complement=reverse_complement),
                                                showProgress,
                                                itertools.product(compressed_dict.keys(), repeat=2))
 
@@ -219,7 +190,6 @@ log_template = '''# `snacc` Analysis
 * Analysis duration: {duration}
 * Compression method: {method}
 * Reverse complement: {rev_comp}
-* Burrows-Wheeler transform: {bwt}
 * Output filepath: {output_path}
 
 ## Version Information
