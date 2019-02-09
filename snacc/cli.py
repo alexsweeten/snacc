@@ -136,7 +136,7 @@ def cli(sequences,
     click.secho("Compressing individual files...", fg="green")
     compressed_sizes = tqdm_parallel_map(executor,
                                          lambda x: compressed_size(
-                                             filename=x,
+                                             sequences=x,
                                              algorithm=compression,
                                              save_directory=saveCompression,
                                              reverse_complement=reverse_complement,
@@ -150,7 +150,7 @@ def cli(sequences,
     click.secho("Compressing pairs...", fg="green")
     compressed_pairs_sizes = tqdm_parallel_map(executor,
                                                lambda x: compressed_size(
-                                                   filename=x,
+                                                   sequences=x,
                                                    algorithm=compression,
                                                    save_directory=saveCompression,
                                                    reverse_complement=reverse_complement,
