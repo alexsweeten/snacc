@@ -13,7 +13,6 @@ import pandas as pd
 import sklearn
 import umap
 from markdown import markdown
-from tqdm import tqdm
 
 from .pairwise_ncd import compressed_size, compute_distance
 from .version import __version__
@@ -64,9 +63,6 @@ from .version import __version__
                                  'bwt-disk-rle-range',
                                  'bwt-disk-dna5-symbol']),
               help="The compression algorithm to use. Defaults to lzma.")
-@click.option("--show-progress/--no-show-progress", "showProgress",
-              default=True,
-              help="Whether to show a progress bar for computing compression distances.")
 @click.option("-r", "--reverse_complement",
               is_flag=True,
               default=False,
@@ -91,7 +87,6 @@ def cli(sequences,
         directories,
         numThreads,
         compression,
-        showProgress,
         saveCompression,
         output,
         reverse_complement,
@@ -142,30 +137,26 @@ def cli(sequences,
 
     #compute compressed sizes of individual sequences
     click.secho("Compressing individual files...", fg="green")
-    compressed_sizes = tqdm_parallel_map(executor,
-                                         lambda x: compressed_size(
-                                             filename=x,
-                                             algorithm=compression,
-                                             save_directory=saveCompression,
-                                             reverse_complement=reverse_complement,
-                                             BWT=BWT,
-                                             bwte_inputs=bwte_inputs),
-                                         showProgress,
-                                         files)
+    compressed_sizes = executor.map(lambda x: compressed_size(
+                                    filename=x,
+                                    algorithm=compression,
+                                    save_directory=saveCompression,
+                                    reverse_complement=reverse_complement,
+                                    BWT=BWT,
+                                    bwte_inputs=bwte_inputs),
+                                    files)
     compressed_dict = dict(compressed_sizes) # {PATH: compressed size}
 
     # compute compressed sizes of all ordered pairs of sequences
     click.secho("Compressing pairs...", fg="green")
-    compressed_pairs_sizes = tqdm_parallel_map(executor,
-                                               lambda x: compressed_size(
-                                                   filename=x,
-                                                   algorithm=compression,
-                                                   save_directory=saveCompression,
-                                                   reverse_complement=reverse_complement,
-                                                   BWT=BWT,
-                                                   bwte_inputs=bwte_inputs),
-                                               showProgress,
-                                               itertools.product(compressed_dict.keys(), repeat=2))
+    compressed_pairs_sizes = executor.map(lambda x: compressed_size(
+                                            filename=x,
+                                            algorithm=compression,
+                                            save_directory=saveCompression,
+                                            reverse_complement=reverse_complement,
+                                            BWT=BWT,
+                                            bwte_inputs=bwte_inputs),
+                                            itertools.product(compressed_dict.keys(), repeat=2))
 
     compressed_pairs_dict = dict(compressed_pairs_sizes) # {(A, B): size, (B, A): size,...}
 
@@ -206,23 +197,6 @@ def cli(sequences,
     print(rendered, file=open(output.stem + "." + log_type, "w"))
     if show_log and log_type == "html":
         webbrowser.open("file://" + str(output.parent.absolute()) + "/" + output.stem + "." + log_type)
-
-def tqdm_parallel_map(executor, fn, showProgress, *iterables, **kwargs):
-    """
-    Equivalent to executor.map(fn, *iterables),
-        but displays a tqdm-based progress bar.
-        Does not support timeout or chunksize as executor.submit is used internally
-    **kwargs is passed to tqdm.
-    """
-    futures_list = []
-    for iterable in iterables:
-        futures_list += [executor.submit(fn, i) for i in iterable]
-    if showProgress:
-        for f in tqdm(concurrent.futures.as_completed(futures_list), total=len(futures_list), **kwargs):
-            yield f.result()
-    else:
-        for f in concurrent.futures.as_completed(futures_list):
-            yield f.result()
 
 
 rendered_html = '''
