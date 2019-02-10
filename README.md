@@ -23,7 +23,6 @@ snacc is a pipeline that implements the normalized compression distance (NCD) sp
 - [`sklearn`](http://scikit-learn.org/stable/)
 - [`py-lz4framed`](https://github.com/Iotic-Labs/py-lz4framed)
 - [`click`](https://click.palletsprojects.com/en/7.x/)
-- [`tqdm`](https://pypi.org/project/tqdm/)
 - [`biopython`](https://biopython.org/)
 - [`umap-learn`](https://github.com/lmcinnes/umap)
 - [`jinja2`](http://jinja.pocoo.org/docs/2.10/)

@@ -4,7 +4,6 @@ pandas
 scikit-learn
 click
 py-lz4framed
-tqdm
 biopython
 umap-learn
 jinja2
