@@ -17,13 +17,16 @@
 
 ## Installation
 
-To install the dependencies:
-
-    pip install git+https://github.com/SweetiePi/snacc
+To install `snacc` directly you may use:
     
-You can `snacc` directly from this repo as long as you have the dependencies installed.
+```bash
+virtualenv env --python=python3.6 # optional, but recommended to create a clean environment
+source env/bin/activate # if using virtualenv, activate the env
+pip install git+https://github.com/SweetiePi/snacc
+```
+    
 We recommend you create a conda environment for `snacc` and install PathOGiST through conda.
-`snacc` requires Python 3.6, so create a conda environment with the right python version:
+`snacc` requires Python 3.6, so create a conda environment with the right Python version:
 ```bash
 conda create --name snacc python=3.6
 ```
@@ -36,12 +39,8 @@ When inside the `snacc` conda environment, you can verify correct isntallation b
 
 ## Examples
 
-0) Before calling snacc
-```
-source activate my_env
-```
 1) Most basic usage
-```
+```bash
 snacc [folder with sequences] -o [output name]
 ```
 2) Intermediate: customize number of threads and compression algorithm
@@ -49,7 +48,7 @@ snacc [folder with sequences] -o [output name]
 snacc -d [folder with sequences] -o [output name] -n 24 -c gzip
 ```
 3) Full control
-```
+```bash
 snacc \
 --directory [folder with sequences] \
 --output [output name] \
@@ -59,46 +58,22 @@ snacc \
 --reverse-compliment False
 ```
 
-## Output
+## Output Example
 ### snacc analysis
 * Analysis time: 2018-10-14 15:18:17.257619
 * Analysis duration: 0:00:26.383997
 * Compression method: lz4
 * Reverse complement: False
 * Burrows-Wheeler transform: False
-* Output filepath: /Users/BenjaminLee/Desktop/Python/Research/hackseq18/bioncd-hackseq/test.csv
+* Output filepath: test.csv
 
-##### Analyzed Files
-* /Users/BenjaminLee/Desktop/Python/Research/hackseq18/bioncd-hackseq/test_dataset/mysteryGenome_1.fasta
-* /Users/BenjaminLee/Desktop/Python/Research/hackseq18/bioncd-hackseq/test_dataset/mysteryGenome_2.fasta
-
-
-##### Distance Matrix
-<table>
-  <thead>
-    <tr style="text-align: right;">
-      <th>file</th>
-      <th>mysteryGenome_1.fasta</th>
-      <th>mysteryGenome_2.fasta</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>mysteryGenome_1.fasta</td>
-      <td>0.0</td>
-      <td>0.003542</td>
-    </tr>
-    <tr>
-      <td>mysteryGenome_2.fasta</td>
-      <td>0.003542</td>
-      <td>0.0</td>
-    </tr>
-  </tbody>
-</table>
-
-##### Version Information
+#### Version Information
 * Python: 3.6.0 (v3.6.0:41df79263a11, Dec 22 2016, 17:23:13) [GCC 4.2.1 (Apple Inc. build 5666) (dot 3)]
 * snacc: 0.0.1
 * scikit-learn: 0.20.0
 * py-lz4framed: 0.12.0
 * umap-learn: 0.3.5
+
+#### Analyzed Files
+* /test_dataset/mysteryGenome_1.fasta
+* /test_dataset/mysteryGenome_2.fasta
