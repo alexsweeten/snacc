@@ -25,7 +25,7 @@ source env/bin/activate # if using virtualenv, activate the env
 pip install git+https://github.com/SweetiePi/snacc
 ```
     
-We recommend you create a conda environment for `snacc` and install PathOGiST through conda.
+We recommend you create a conda environment for `snacc` and install through conda.
 `snacc` requires Python 3.6, so create a conda environment with the right Python version:
 ```bash
 conda create --name snacc python=3.6
