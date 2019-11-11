@@ -1,6 +1,5 @@
 import concurrent.futures
 import itertools
-import os
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -55,9 +54,7 @@ from .version import __version__
                                  'gzip',
                                  'bzip2',
                                  'zlib',
-                                 'lz4',
-                                 'bwt-disk-rle-range',
-                                 'bwt-disk-dna5-symbol']),
+                                 'lz4']),
               help="The compression algorithm to use. Defaults to lzma.")
 @click.option("--show-progress/--no-show-progress", "showProgress",
               default=True,
@@ -78,8 +75,7 @@ def cli(sequences,
         saveCompression,
         output,
         reverse_complement,
-        log_type,
-        show_log):
+        log):
     start_time = datetime.now()
 
     if fasta or directories:
@@ -153,10 +149,7 @@ def cli(sequences,
                                        method=compression,
                                        py_version=str(sys.version.replace("\n", "")),
                                        snacc_version=__version__,
-                                       umap_version=umap.__version__,
-                                       sklearn_version=sklearn.__version__,
                                        lz4framed_version=lz4framed.__version__,
-                                       bwt=BWT,
                                        rev_comp=reverse_complement,
                                        duration=datetime.now() - start_time,
                                        output_path=output.absolute())
@@ -195,9 +188,7 @@ log_template = '''# `snacc` Analysis
 ## Version Information
 * Python: {py_version}
 * snacc: {snacc_version}
-* scikit-learn: {sklearn_version}
 * py-lz4framed: {lz4framed_version}
-* umap-learn: {umap_version}
 
 ## Analyzed Files
 '''
